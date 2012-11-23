@@ -12,11 +12,12 @@ import javax.swing.border.*;
  * that takes care of representing the data to the user.
  * @author Mark
  */
-public class GUI {
+public class GUI implements ActionListener{
     
     private JFrame frame;
     private JPanel contentPane;
-    
+    private JComboBox startComboBox;
+    private JComboBox endComboBox;
     public GUI() {
         makeFrame();
     }
@@ -69,10 +70,10 @@ public class GUI {
             });
         menu.add(item);
         
-        menu = new JMenu("Cars");
+        menu = new JMenu("Flights");
         menubar.add(menu);
         
-        item = new JMenuItem("Search for available cars");
+        item = new JMenuItem("Search for flights");
             item.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) { carSearch(); }
             });
@@ -81,20 +82,39 @@ public class GUI {
     
     
     /**
-     * SKAL OMSKRIVES TOTALT.
+     * 
      */
     private void makeReservation() {
+    chooseFlight();
+    }
+    
+    private void chooseFlight() {
+        JPanel flightChoice = new JPanel(new GridLayout(0,1));
         
+        String[] Flights = {"Nothing Selected", "type1", "type2", "type3", "type4", "type5"};
+        startComboBox = new JComboBox(Flights);
+              
+        flightChoice.add(new JLabel("What flight?"));
+        flightChoice.add(startComboBox);
+        startComboBox.addActionListener(this);
         
+        String[] destinations = {"Nothing Selected", "type1", "type2", "type3", "type4", "type5"};
+        endComboBox = new JComboBox(destinations);
+              
+        flightChoice.add(new JLabel("Where to?"));
+        flightChoice.add(endComboBox);
+        
+        JOptionPane inputDialog = new JOptionPane();
+        int result = inputDialog.showConfirmDialog(frame, flightChoice, "Search Options", inputDialog.OK_CANCEL_OPTION);
+    }    
+        
+    private void CostumerInput() {    
         Object[] options = {"New Costumer", "Existing Customer"};
         int result = JOptionPane.showOptionDialog(frame, "Is it an existing costumer?", "Costumer Information",
         JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, options,options[0]);
         
         if(result == JOptionPane.NO_OPTION) {
-            //TODO, choose costumer.
-            
-            chooseFlight();
-
+            //Skal måske dø.
         }
         
         //If you choose new costumer:
@@ -110,22 +130,24 @@ public class GUI {
             cosInput.add(number);
             
             JOptionPane inputDialog = new JOptionPane();
-            inputDialog.showMessageDialog(frame, cosInput, "Create Costumer", inputDialog.QUESTION_MESSAGE);
+            Object[] CostumerOptions = {"Next", "Abort"};
+            int CostumerResult = inputDialog.showOptionDialog(frame, cosInput, "Create Costumer",JOptionPane.YES_NO_OPTION, inputDialog.QUESTION_MESSAGE, null, CostumerOptions, CostumerOptions[0]);
             
             //if you then press ok, the phone number is checked if it is actually a number.
             //It is assumed the program is to be used in countries with phone numbers if at least 8 characters.
+            if(CostumerResult == inputDialog.YES_OPTION)   { 
                 if(name.getText() == null || isIntNumber(number.getText()) == false || 
-                        number.getText() == null || 8 > number.getText().length()) {
+                   number.getText() == null || 8 > number.getText().length()) {
                     
                     JOptionPane errorDialog = new JOptionPane();
                     errorDialog.showMessageDialog(frame, "Error! input was incorrect, try again.");
                     
                 }
-                    //Create Costumer object here probably
                 
                 else {
-                    chooseFlight();
+                    
                 }
+            }
         }
     }
        
@@ -134,7 +156,7 @@ public class GUI {
      * A method for choosing a type of car.
      * @return the chosen type of car. KAN FORMENTLIG BRUGES IGEN.
      */
-    private void chooseFlight() {
+    private void chooseFlightTestMethod() {
         String[] carTypes = {"type1", "type2", "type3", "type4", "type5"};
         
         final JFrame carFrame = new JFrame("Choose Flight");       
@@ -366,6 +388,30 @@ public class GUI {
             return false;
         }
         return true;
+    }
+     
+     /**
+      * When a Start Airport is chosen, the Destination box will change to
+      * display relevant flights.
+      */
+     public void actionPerformed(ActionEvent e) {
+        String selectedValue = startComboBox.getSelectedItem().toString();
+        String[] destinations = null;
+
+        DefaultComboBoxModel model = (DefaultComboBoxModel) endComboBox.getModel();      
+        model.removeAllElements();
+
+        if(selectedValue.equals("type1")){
+            destinations = new String[]{"val11", "val12", "val13"};
+        } else if(selectedValue.equals("type2")){
+            destinations = new String[]{"val21", "val22", "val23"};
+        } else if(selectedValue.equals("type3")){
+            destinations = new String[]{"val31", "val32", "val33"};
+        }
+        //Hvorfor virker jeg?
+        for(String val : destinations){
+           model.addElement(val);
+        }
     }
             
 }
