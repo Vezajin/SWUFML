@@ -5,6 +5,7 @@ import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.border.*;
+import org.omg.PortableInterceptor.SYSTEM_EXCEPTION;
 
 
 /**
@@ -12,7 +13,7 @@ import javax.swing.border.*;
  * that takes care of representing the data to the user.
  * @author Mark
  */
-public class GUI implements ActionListener{
+public class GUI{
     
     private JFrame frame;
     private JPanel contentPane;
@@ -85,20 +86,49 @@ public class GUI implements ActionListener{
      * 
      */
     private void makeReservation() {
-    chooseFlight();
+    chooseFlight("year", "month", "day");
     }
     
-    private void chooseFlight() {
+    private void chooseDate() {
+        JPanel dateInput = new JPanel(new GridLayout(0,1));
+
+        JTextField startYear = new JTextField("yyyy");
+        JTextField startMonth = new JTextField("mm");
+        JTextField startDay = new JTextField("dd");
+
+        dateInput.add(new JLabel("Please select date for departure."));
+        dateInput.add(startYear);
+        dateInput.add(startMonth);
+        dateInput.add(startDay);
+        
+        JOptionPane inputDialog = new JOptionPane();
+        int result = inputDialog.showConfirmDialog(frame, dateInput, "Search Option", inputDialog.OK_CANCEL_OPTION);
+        
+        if(result == inputDialog.YES_OPTION) {
+           if(isIntNumber(startYear.getText()) == false || 
+              isIntNumber(startMonth.getText()) == false || 
+              isIntNumber(startDay.getText()) == false) {
+              
+                JOptionPane errorDialog = new JOptionPane();
+                errorDialog.showMessageDialog(null, "Error! input was not a date!");
+                chooseDate();
+           }
+           else {
+               chooseFlight(startYear.getText(), startMonth.getText(), startDay.getText());
+           }
+        }
+    }
+    private void chooseFlight(String year, String month, String day) {
         JPanel flightChoice = new JPanel(new GridLayout(0,1));
         
         String[] Flights = {"Nothing Selected", "type1", "type2", "type3", "type4", "type5"};
         startComboBox = new JComboBox(Flights);
               
-        flightChoice.add(new JLabel("What flight?"));
+        flightChoice.add(new JLabel("From what airport?"));
         flightChoice.add(startComboBox);
-        startComboBox.addActionListener(this);
+        startComboBox.addActionListener(new JComboBoxActionListener(this));
         
-        String[] destinations = {"Nothing Selected", "type1", "type2", "type3", "type4", "type5"};
+        String[] destinations = {"Nothing Selected"};
         endComboBox = new JComboBox(destinations);
               
         flightChoice.add(new JLabel("Where to?"));
@@ -106,7 +136,22 @@ public class GUI implements ActionListener{
         
         JOptionPane inputDialog = new JOptionPane();
         int result = inputDialog.showConfirmDialog(frame, flightChoice, "Search Options", inputDialog.OK_CANCEL_OPTION);
-    }    
+        if(result == inputDialog.YES_OPTION) {
+            if(startComboBox.getSelectedItem() == "Nothing Selected") {
+              
+                JOptionPane errorDialog = new JOptionPane();
+                errorDialog.showMessageDialog(null, "Error! Please choose a flight!");
+                chooseFlight(year, month, day);
+            }
+            else {
+                //Send den valgtes flightID til chooseSeats.
+            }
+        }
+    }
+    
+    private void chooseSeats(String flightID) {
+        
+    }
         
     private void CostumerInput() {    
         Object[] options = {"New Costumer", "Existing Customer"};
@@ -156,7 +201,7 @@ public class GUI implements ActionListener{
      * A method for choosing a type of car.
      * @return the chosen type of car. KAN FORMENTLIG BRUGES IGEN.
      */
-    private void chooseFlightTestMethod() {
+    /* private void chooseFlightTestMethod() {
         String[] carTypes = {"type1", "type2", "type3", "type4", "type5"};
         
         final JFrame carFrame = new JFrame("Choose Flight");       
@@ -200,7 +245,7 @@ public class GUI implements ActionListener{
         
         carFrame.pack();
         carFrame.setVisible(true);
-    }
+    }*/
     
     
     /**
@@ -361,7 +406,7 @@ public class GUI implements ActionListener{
            }
            else {
                String carTypeChosen = comboBox.getSelectedItem().toString();
-               showCars(carTypeChosen, Integer.parseInt(startDate.getText()), Integer.parseInt(endDate.getText()));
+               showFlight(carTypeChosen, Integer.parseInt(startDate.getText()), Integer.parseInt(endDate.getText()));
            } 
         }
             
@@ -371,7 +416,7 @@ public class GUI implements ActionListener{
     /**
      * Shows a list of available cars of a given type in the given time period. WELL... 
      */
-    private void showCars(String carTypeChosen, int startDate, int endDate) {
+    private void showFlight(String carTypeChosen, int startDate, int endDate) {
         //Will poop out the list
     }
     
@@ -379,7 +424,7 @@ public class GUI implements ActionListener{
     /**
      * Is used to check if a string is a integer. In our case this is used for checking
      * input data from textfields.
-     * @param num is the string that is to be checked. WIN!
+     * @param num is the string that is to be checked.
      */
      private boolean isIntNumber(String num){
         try{
@@ -392,26 +437,35 @@ public class GUI implements ActionListener{
      
      /**
       * When a Start Airport is chosen, the Destination box will change to
-      * display relevant flights.
+      * display relevant flights. This is handled by our inner class 
+      * JComboBoxActionListener.
       */
-     public void actionPerformed(ActionEvent e) {
-        String selectedValue = startComboBox.getSelectedItem().toString();
-        String[] destinations = null;
+     private class JComboBoxActionListener implements ActionListener {
+         
+        public JComboBoxActionListener(GUI gui) {
+         
+     }
+        public void actionPerformed(ActionEvent e) {
+            String selectedValue = startComboBox.getSelectedItem().toString();
+            String[] destinations = null;
 
-        DefaultComboBoxModel model = (DefaultComboBoxModel) endComboBox.getModel();      
-        model.removeAllElements();
+            DefaultComboBoxModel model = (DefaultComboBoxModel) endComboBox.getModel();      
+            model.removeAllElements();
 
-        if(selectedValue.equals("type1")){
-            destinations = new String[]{"val11", "val12", "val13"};
-        } else if(selectedValue.equals("type2")){
-            destinations = new String[]{"val21", "val22", "val23"};
-        } else if(selectedValue.equals("type3")){
-            destinations = new String[]{"val31", "val32", "val33"};
+            if(selectedValue.equals("type1")){
+                destinations = new String[]{"val11", "val12", "val13"};
+            } 
+            else if(selectedValue.equals("type2")){
+                destinations = new String[]{"val21", "val22", "val23"};
+            } 
+            else if(selectedValue.equals("type3")){
+                destinations = new String[]{"val31", "val32", "val33"};
+            }
+            //Hvorfor virker jeg?
+            for(String val : destinations){
+                model.addElement(val);
+            }
         }
-        //Hvorfor virker jeg?
-        for(String val : destinations){
-           model.addElement(val);
-        }
-    }
+     }
             
 }
