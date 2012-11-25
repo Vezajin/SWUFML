@@ -76,7 +76,7 @@ public class GUI{
         
         item = new JMenuItem("Search for flights");
             item.addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent e) { carSearch(); }
+                public void actionPerformed(ActionEvent e) { chooseDate(); }
             });
         menu.add(item);
     }
@@ -96,7 +96,7 @@ public class GUI{
         JTextField startMonth = new JTextField("mm");
         JTextField startDay = new JTextField("dd");
 
-        dateInput.add(new JLabel("Please select date for departure."));
+        dateInput.add(new JLabel("Please select date of departure."));
         dateInput.add(startYear);
         dateInput.add(startMonth);
         dateInput.add(startDay);
@@ -150,7 +150,7 @@ public class GUI{
     }
     
     private void chooseSeats(String flightID) {
-        
+        //display ledige sæder på den valgte afgang, ala minestryger.
     }
         
     private void CostumerInput() {    
