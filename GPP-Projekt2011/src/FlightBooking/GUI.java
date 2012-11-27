@@ -3,6 +3,7 @@ package FlightBooking;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.sql.SQLException;
 import javax.swing.*;
 import javax.swing.border.*;
 
@@ -18,7 +19,13 @@ public class GUI{
     private JPanel contentPane;
     private JComboBox startComboBox;
     private JComboBox endComboBox;
+    private Database database;
     public GUI() {
+        try {
+            database = new Database();
+        } catch (SQLException ex) {
+            System.out.println("Initialisation action exception : " + ex);
+        }
         makeFrame();
     }
     
@@ -193,6 +200,43 @@ public class GUI{
             }
         }
     }
+    
+    private void makeOrder() {
+        JPanel orderInput = new JPanel(new GridLayout(0,1));
+
+        JTextField costumerID = new JTextField("costumer ID");
+        JTextField flightID = new JTextField("flight ID");
+        JTextField seatID = new JTextField("seat ID");
+
+        orderInput.add(new JLabel("Mark er Gud, fuck hoveder!"));
+        orderInput.add(costumerID);
+        orderInput.add(flightID);
+        orderInput.add(seatID);
+        
+        JOptionPane inputDialog = new JOptionPane();
+        int result = inputDialog.showConfirmDialog(frame, orderInput, "Search Option", inputDialog.OK_CANCEL_OPTION);
+        
+        if(result == inputDialog.YES_OPTION) {
+           if(isIntNumber(costumerID.getText()) == false || 
+              isIntNumber(flightID.getText()) == false || 
+              isIntNumber(seatID.getText()) == false) {
+              
+                JOptionPane errorDialog = new JOptionPane();
+                errorDialog.showMessageDialog(null, "Error! input was not a date!");
+                chooseDate();
+           }
+           else { 
+                try {
+                    Order order = new Order(stringConverter(costumerID.getText()),
+                                            stringConverter(flightID.getText()),
+                                            stringConverter(seatID.getText()));
+                    order.insert(database);
+                } catch (SQLException ex) {
+                    System.out.println("Order action exception: " + ex);
+                }
+           }
+        }
+    }
        
     
     /**
@@ -245,46 +289,6 @@ public class GUI{
         carFrame.setVisible(true);
     }*/
     
-    
-    /**
-     * Used for selecting car type.
-     * @param choice is the car type chosen.
-     */
-    private void carTypeChosen(String choice) {
-        
-        JTextField startDate = new JTextField("ddmmyy");
-            JTextField endDate = new JTextField("ddmmyy");
-            JPanel cosInput = new JPanel(new GridLayout(0,1));
-            
-            cosInput.add(new JLabel("Start Date:"));
-            cosInput.add(startDate);
-            cosInput.add(new JLabel("End Date:"));
-            cosInput.add(endDate);
-            
-            JOptionPane inputDialog = new JOptionPane();
-            inputDialog.showMessageDialog(frame, cosInput, "Choose Time Period", inputDialog.QUESTION_MESSAGE);
-            
-            //Checks if the dates are null, not numbers or either too long or too short.
-            if(startDate.getText() == null || isIntNumber(startDate.getText()) == false ||
-                     6 != startDate.getText().length() || endDate.getText() == null || 
-                    isIntNumber(endDate.getText()) == false || 6 != endDate.getText().length()) {
-                    
-                    JOptionPane errorDialog = new JOptionPane();
-                    errorDialog.showMessageDialog(frame, "Error! input was incorrect, try again.");
-            }
-            else {
-                bookCar(choice, Integer.parseInt(startDate.getText()), Integer.parseInt(endDate.getText()));
-            }
-    }
-    
-    
-    /**
-     * Books a car of the given type in a given period. WELL UHM... JA.
-     */
-    private void bookCar(String carType, int startDate, int endDate) {
-        
-    }
-    
     /**
      * SER UD TIL AT KUNNE BRUGES IGEN. MANGLER DOG SELVE EDIT/DELETE DELEN.
      */
@@ -331,7 +335,6 @@ public class GUI{
         }
     }
     
-    
     /**
      * Adds a picture to the contentpane.
      */
@@ -348,56 +351,7 @@ public class GUI{
         frame.setVisible(true);
     }
     
-    
-    /**
-     * When "Cars" -> "Search for available cars" is activated, a input dialogue
-     * for what type of car you want to search for, followed by a
-     * start date input dialogue, and then a end date inut dialogue. DELE KAN BRUGES.
-     */
-    private void carSearch() {
-        JPanel inputs = new JPanel(new GridLayout(0,1));
-        
-        String[] carTypes = {"type1", "type2", "type3", "type4", "type5"};
-        JComboBox comboBox = new JComboBox(carTypes);
-        JTextField startDate = new JTextField("ddmmyy");
-        JTextField endDate = new JTextField("ddmmyy");
-        
-        inputs.add(new JLabel("What type of car?"));
-        inputs.add(comboBox);
-        inputs.add(new JLabel());
-        inputs.add(new JLabel("Start:"));
-        inputs.add(startDate);
-        inputs.add(new JLabel());
-        inputs.add(new JLabel("End:"));
-        inputs.add(endDate);
-        
-        JOptionPane inputDialog = new JOptionPane();
-        int result = inputDialog.showConfirmDialog(frame, inputs, "Search Option", inputDialog.OK_CANCEL_OPTION);
-        
-        if(result == inputDialog.YES_OPTION) {
-           if(isIntNumber(startDate.getText()) == false || isIntNumber(endDate.getText()) == false) {
-               JOptionPane errorDialog = new JOptionPane();
-               errorDialog.showMessageDialog(null, "Error! input was not a date!");
-               carSearch();
-           }
-           else {
-               String carTypeChosen = comboBox.getSelectedItem().toString();
-               showFlight(carTypeChosen, Integer.parseInt(startDate.getText()), Integer.parseInt(endDate.getText()));
-           } 
-        }
-            
-    }
-    
-    
-    /**
-     * Shows a list of available cars of a given type in the given time period. WELL... 
-     */
-    private void showFlight(String carTypeChosen, int startDate, int endDate) {
-        //Will poop out the list
-    }
-    
-    
-    /**
+     /**
      * Is used to check if a string is a integer. In our case this is used for checking
      * input data from textfields.
      * @param num is the string that is to be checked.
@@ -409,7 +363,12 @@ public class GUI{
             return false;
         }
         return true;
-    }
+     }
+     
+     private int stringConverter(String string) {
+         int integer = Integer.parseInt(string);
+         return integer;
+     }
      
      /**
       * When a Start Airport is chosen, the Destination box will change to
