@@ -5,7 +5,6 @@ import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.border.*;
-import org.omg.PortableInterceptor.SYSTEM_EXCEPTION;
 
 
 /**
@@ -32,10 +31,9 @@ public class GUI{
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         contentPane = (JPanel)frame.getContentPane();
         contentPane.setLayout(new BorderLayout());
-        contentPane.setBorder(new EmptyBorder(0, 0, 20, 20));
         
         makeMenuBar(frame);
-        seeReservations();
+        pictureContent();
     }
     
     
@@ -65,11 +63,11 @@ public class GUI{
             });
         menu.add(item);
         
-        item = new JMenuItem("See Reservations");
+        /*item = new JMenuItem("See Reservations");
             item.addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent e) { seeReservations(); }
+                public void actionPerformed(ActionEvent e) { seeResevations(); }
             });
-        menu.add(item);
+        menu.add(item);*/
         
         menu = new JMenu("Flights");
         menubar.add(menu);
@@ -335,40 +333,18 @@ public class GUI{
     
     
     /**
-     * Shows the reservation schedule. DELE KAN BRUGES.
+     * Adds a picture to the contentpane.
      */
-    private void seeReservations() {
+    private void pictureContent() {
         contentPane.removeAll();
-        //Creates a table to list cars and if they're booked on certain dates.
-        Object [] date = {"dec 1", "dec 2"};
-        int numberOfDates = date.length+1;
-        Object[] columnNames = new String[numberOfDates];
-        columnNames[0] = "Cars";
-        for(int i=0; i <date.length; i++) {
-            columnNames[i+1] = date[i];
-        }
-
-        Object[][] data = {
-            {"Van1", "booked", "not booked"},
-            {"4-door Car1", "not booked", "not booked"},
-            {"2-door Car1", "booked", "booked"},
-            {"2-door Car2", "not booked", "booked"},
-            {"Boat1","not booked", "not booked"}        
-        };
-        
-        //Creates the table and makes the cells uneditable.
-        JTable table = new JTable(data, columnNames) {
-            public boolean isCellEditable(int row, int column) {
-                return false;
-            }
-        };    
-        contentPane.add(table);
-        contentPane.add(table.getTableHeader(), BorderLayout.PAGE_START);
-        contentPane.add(table, BorderLayout.CENTER);
+        ImageIcon icon = new ImageIcon(getClass().getResource("fly.jpg"));
+        JLabel pictureLabel = new JLabel(icon);
+        contentPane.add(pictureLabel, BorderLayout.CENTER);
         
         frame.pack();
         frame.setLocationRelativeTo(null);
         frame.setSize(500, 300);
+        frame.setResizable(false);
         frame.setVisible(true);
     }
     
