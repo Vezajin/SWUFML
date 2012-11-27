@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package FlightBooking;
 
 import java.sql.*;
@@ -10,10 +6,7 @@ import java.sql.*;
  * @author Lollike
  */
 public class Order {
-    private int key;
-    private int customer;
-    private int flight;
-    private int seat;
+    private int key, customer, flight, seat;
     
     public Order(int c, int f, int s) {
         key = 0;

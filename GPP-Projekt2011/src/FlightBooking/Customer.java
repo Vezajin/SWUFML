@@ -1,23 +1,14 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package FlightBooking;
 
 import java.sql.*;
+
 /**
  *
  * @author Lollike
  */
 public class Customer {
     private int key;
-    private String firstname;
-    private String lastname;
-    private String country;
-    private String city;
-    private String address;
-    private String phonenumber;
-    private String email;
+    private String firstname, lastname, country, city, address, phonenumber, email;
     
     public Customer(String f, String l, String c, String ci, String a, String p, String e) {
         key = 0;
