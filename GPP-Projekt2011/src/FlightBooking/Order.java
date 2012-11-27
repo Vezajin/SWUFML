@@ -31,6 +31,9 @@ public class Order {
     public void insert(Database db) throws SQLException {
         db.execute("INSERT INTO Orders (customerid, flightid, seatid) VALUES ('" 
                 + customer + "', '" + flight + "', '" + seat + "')");
+        ResultSet rs = db.execute("SELECT MAX(id) as 'max' FROM Orders");
+        rs.next();
+        key = rs.getInt("max");
     }
     
     public int getCostumer() {

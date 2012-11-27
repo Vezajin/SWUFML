@@ -6,6 +6,7 @@ import java.awt.event.*;
 import java.sql.SQLException;
 import javax.swing.*;
 import javax.swing.border.*;
+import java.util.ArrayList;
 
 
 /**
@@ -20,12 +21,14 @@ public class GUI{
     private JComboBox startComboBox;
     private JComboBox endComboBox;
     private Database database;
+    private ArrayList customers; 
     public GUI() {
         try {
             database = new Database();
         } catch (SQLException ex) {
             System.out.println("Initialisation action exception : " + ex);
         }
+        ArrayList<Customer> customers = new ArrayList();
         makeFrame();
     }
     
@@ -91,7 +94,7 @@ public class GUI{
      * 
      */
     private void makeReservation() {
-    chooseFlight("year", "month", "day");
+    createCustomer(5);
     }
     
     private void chooseDate() {
@@ -158,58 +161,83 @@ public class GUI{
         //display ledige sæder på den valgte afgang, ala minestryger.
     }
         
-    private void CostumerInput() {    
-        Object[] options = {"New Costumer", "Existing Customer"};
-        int result = JOptionPane.showOptionDialog(frame, "Is it an existing costumer?", "Costumer Information",
-        JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, options,options[0]);
+    /*
+     * Creates customers that are put into an array and send on in the booking process.
+     * Method is repeated until there is a customer of each of the chosen seats.
+     */
+    private void createCustomer(int numberOfSeats) {    
         
-        if(result == JOptionPane.NO_OPTION) {
-            //Skal måske dø.
-        }
+        int seatsRemaining= numberOfSeats;
+        JTextField firstName = new JTextField();
+        JTextField lastName = new JTextField();
+        JTextField country = new JTextField();
+        JTextField city = new JTextField();
+        JTextField address = new JTextField();
+        JTextField email = new JTextField();
+        JTextField phoneNumber = new JTextField();
+        JPanel cosInput = new JPanel(new GridLayout(0,1));
         
-        //If you choose new costumer:
-        if(result == JOptionPane.YES_OPTION) {
+        cosInput.add(new JLabel("First name:"));
+        cosInput.add(firstName);
+        cosInput.add(new JLabel("Last name:"));
+        cosInput.add(lastName);
+        cosInput.add(new JLabel("Country:"));
+        cosInput.add(country);
+        cosInput.add(new JLabel("City:"));
+        cosInput.add(city);
+        cosInput.add(new JLabel("Street and house number:"));
+        cosInput.add(address);
+        cosInput.add(new JLabel("Email:"));
+        cosInput.add(email);
+        cosInput.add(new JLabel("Phone number"));
+        cosInput.add(phoneNumber);
         
-            JTextField name = new JTextField();
-            JTextField number = new JTextField();
-            JPanel cosInput = new JPanel(new GridLayout(0,1));
-            
-            cosInput.add(new JLabel("Costumer name:"));
-            cosInput.add(name);
-            cosInput.add(new JLabel("Costumer's phone number:"));
-            cosInput.add(number);
-            
-            JOptionPane inputDialog = new JOptionPane();
-            Object[] CostumerOptions = {"Next", "Abort"};
-            int CostumerResult = inputDialog.showOptionDialog(frame, cosInput, "Create Costumer",JOptionPane.YES_NO_OPTION, inputDialog.QUESTION_MESSAGE, null, CostumerOptions, CostumerOptions[0]);
-            
-            //if you then press ok, the phone number is checked if it is actually a number.
-            //It is assumed the program is to be used in countries with phone numbers if at least 8 characters.
-            if(CostumerResult == inputDialog.YES_OPTION)   { 
-                if(name.getText() == null || isIntNumber(number.getText()) == false || 
-                   number.getText() == null || 8 > number.getText().length()) {
-                    
-                    JOptionPane errorDialog = new JOptionPane();
-                    errorDialog.showMessageDialog(frame, "Error! input was incorrect, try again.");
-                    
-                }
+        JOptionPane inputDialog = new JOptionPane();
+        int result = inputDialog.showConfirmDialog(frame, cosInput, "Customer Information", inputDialog.OK_CANCEL_OPTION);
+        if(result == inputDialog.YES_OPTION) {
+            if(firstName.getAction() == null || lastName.getAction() == null || 
+               country.getAction() == null || city.getAction() == null || 
+               address.getAction() == null || email.getAction() == null ||
+               phoneNumber.getAction() == null || isIntNumber(phoneNumber.getText()) == false) {
                 
-                else {
-                    
-                }
+                JOptionPane errorDialog = new JOptionPane();
+                    errorDialog.showMessageDialog(frame, "Error! input was incorrect, try again.");
+                    createCustomer(seatsRemaining);
             }
+            else {
+                Customer customer = new Customer(firstName.getText(), lastName.getText(), country.getText(), city.getText(),
+                        address.getText(), email.getText(), phoneNumber.getText());
+                customers.add(customer);
+                int seats = seatsRemaining;
+                seatsRemaining = seats-1;
+                if(seatsRemaining < 0) {
+                    createCustomer(seatsRemaining);
+                }
+                else {
+                    makeOrder();
+                }
+            }            
         }
+        /*else {
+            JOptionPane cancelDialog = new JOptionPane();
+            int cancelResult = cancelDialog.showConfirmDialog(frame,"Are you sure you wish to quit? " +
+                                                              "If you have already made customers, these will be deleted.",
+                                                              "Customer Information", inputDialog.OK_CANCEL_OPTION);
+            if(cancelResult == cancelDialog.YES_OPTION && customers.isEmpty() != true) {
+                customers.clear();
+            }
+        }*/
     }
     
     private void makeOrder() {
         JPanel orderInput = new JPanel(new GridLayout(0,1));
 
-        JTextField costumerID = new JTextField("costumer ID");
+        JTextField customerID = new JTextField("customer ID");
         JTextField flightID = new JTextField("flight ID");
         JTextField seatID = new JTextField("seat ID");
 
         orderInput.add(new JLabel("Mark er Gud, fuck hoveder!"));
-        orderInput.add(costumerID);
+        orderInput.add(customerID);
         orderInput.add(flightID);
         orderInput.add(seatID);
         
@@ -217,7 +245,7 @@ public class GUI{
         int result = inputDialog.showConfirmDialog(frame, orderInput, "Search Option", inputDialog.OK_CANCEL_OPTION);
         
         if(result == inputDialog.YES_OPTION) {
-           if(isIntNumber(costumerID.getText()) == false || 
+           if(isIntNumber(customerID.getText()) == false || 
               isIntNumber(flightID.getText()) == false || 
               isIntNumber(seatID.getText()) == false) {
               
@@ -227,7 +255,7 @@ public class GUI{
            }
            else { 
                 try {
-                    Order order = new Order(stringConverter(costumerID.getText()),
+                    Order order = new Order(stringConverter(customerID.getText()),
                                             stringConverter(flightID.getText()),
                                             stringConverter(seatID.getText()));
                     order.insert(database);
@@ -299,7 +327,7 @@ public class GUI{
             JPanel cosInput = new JPanel(new GridLayout(0,1));
             
             cosInput.add(new JLabel("Only enter in one field please."));
-            cosInput.add(new JLabel("Costumer phone number:"));
+            cosInput.add(new JLabel("Customer phone number:"));
             cosInput.add(phoneNumber);
             cosInput.add(new JLabel("Reservation ID:"));
             cosInput.add(resID);
