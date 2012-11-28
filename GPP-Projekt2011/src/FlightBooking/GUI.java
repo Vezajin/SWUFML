@@ -21,14 +21,14 @@ public class GUI{
     private JComboBox startComboBox;
     private JComboBox endComboBox;
     private Database database;
-    private ArrayList customers; 
+    private ArrayList<Customer> customers; 
     public GUI() {
         try {
             database = new Database();
         } catch (SQLException ex) {
             System.out.println("Initialisation action exception : " + ex);
         }
-        ArrayList<Customer> customers = new ArrayList();
+        customers = new ArrayList<Customer>();
         makeFrame();
     }
     
@@ -218,15 +218,17 @@ public class GUI{
                 }
             }            
         }
-        /*else {
+        //If you choose cancel or just try to close the window a "are you sure"-box will appear.
+        else {
             JOptionPane cancelDialog = new JOptionPane();
             int cancelResult = cancelDialog.showConfirmDialog(frame,"Are you sure you wish to quit? " +
                                                               "If you have already made customers, these will be deleted.",
                                                               "Customer Information", inputDialog.OK_CANCEL_OPTION);
-            if(cancelResult == cancelDialog.YES_OPTION && customers.isEmpty() != true) {
+            //If you are sure, all customers saved so far, will be deleted, and the booking process will be terminated.
+            if(cancelResult == cancelDialog.YES_OPTION && customers.isEmpty()== false) {
                 customers.clear();
             }
-        }*/
+        }
     }
     
     private void makeOrder() {
