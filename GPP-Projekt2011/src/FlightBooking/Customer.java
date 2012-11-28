@@ -42,7 +42,7 @@ public class Customer {
         db.execute ("INSERT INTO Customer (firstname, lastname, country, city, address, phonenumber, email) VALUES ('" +
             firstname + "', '" + lastname + "', '" + country + "', '" + city + "', '" + address + "', '" + phonenumber + 
                 "', '" + email + "')");
-        ResultSet rs = db.execute("SELECT MAX(id) as 'max' FROM Costumer");
+        ResultSet rs = db.execute("SELECT MAX(id) as 'max' FROM Customer");
         rs.next();
         key = rs.getInt("max");
     }
