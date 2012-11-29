@@ -7,8 +7,6 @@ import java.sql.SQLException;
 import javax.swing.*;
 import javax.swing.border.*;
 import java.util.ArrayList;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
 
 /**
@@ -163,7 +161,8 @@ public class GUI{
         JDialog seatsDialog = new JDialog(frame);
         
        Container seatsContentPane = seatsDialog.getContentPane();
-        
+       
+       JButton seat = new JButton();
        JPanel left = new JPanel(new GridLayout(10,2));
        JPanel right = new JPanel(new GridLayout(10,2));
        JPanel middle = new JPanel(new GridLayout(1,1));
@@ -173,15 +172,22 @@ public class GUI{
        String seatName;
          while(i<=seatsInColumn) {
             seatName = i+"a";
-            JButton seat1 = new JButton(seatName);
-            System.out.println(seat1.getBackground());
-            left.add(seat1);
+            seat = new JButton(seatName);
+            seat.setBackground(Color.GREEN);
+            seat.addActionListener(new SeatsActionListener());
+            left.add(seat);
             seatName = i+"b";
-            left.add(new JButton(seatName));
+            JButton seat2 = new JButton(seatName);
+            left.add(seat2);
+            seat2.setBackground(Color.GREEN);
             seatName = i+"c";
-            right.add(new JButton(seatName));
+            JButton seat3 = new JButton(seatName);
+            right.add(seat3);
+            seat3.setBackground(Color.GREEN);
             seatName = i+"d";
-            right.add(new JButton(seatName));
+            JButton seat4 = new JButton(seatName);
+            right.add(seat4);
+            seat4.setBackground(Color.GREEN);
             i++;
          }
        middle.add(new JButton());
@@ -435,6 +441,10 @@ public class GUI{
          return integer;
      }
      
+     private void changeColorRed(JButton JB) {
+         JB.setBackground(Color.RED);
+     }
+     
      /**
       * When a Start Airport is chosen, the Destination box will change to
       * display relevant flights. This is handled by our inner class 
@@ -468,15 +478,14 @@ public class GUI{
         }
      }
      
-     private class SeatsActionListener implements ActionListener{
-         
-         public void SeatsActionListener(JButton jb) {
-             
+     private class SeatsActionListener implements ActionListener {
+         public void SeatsActionListener() {
          }
-         
-         public void actionPerformed(ActionEvent e) {
-             jb.setBackground(COLOR.RED);
+         public void actionPerformed(ActionEvent e) {   
+         if(e.getSource() instanceof JButton) {
+             ((JButton)e.getSource()).setBackground(Color.RED);
          }
-     }
+         }
+    }
             
 }
