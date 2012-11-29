@@ -7,6 +7,8 @@ import java.sql.SQLException;
 import javax.swing.*;
 import javax.swing.border.*;
 import java.util.ArrayList;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 
 /**
@@ -94,7 +96,7 @@ public class GUI{
      * 
      */
     private void makeReservation() {
-    createCustomer(5);
+    chooseSeats("Hej", 40);
     }
     
     private void chooseDate() {
@@ -157,8 +159,41 @@ public class GUI{
         }
     }
     
-    private void chooseSeats(String flightID) {
-        //display ledige sæder på den valgte afgang, ala minestryger.
+    private void chooseSeats(String flightID, int numberOfSeats) {
+        JDialog seatsDialog = new JDialog(frame);
+        
+       Container seatsContentPane = seatsDialog.getContentPane();
+        
+       JPanel left = new JPanel(new GridLayout(10,2));
+       JPanel right = new JPanel(new GridLayout(10,2));
+       JPanel middle = new JPanel(new GridLayout(1,1));
+       
+       int seatsInColumn = numberOfSeats/4;
+       int i = 1;
+       String seatName;
+         while(i<=seatsInColumn) {
+            seatName = i+"a";
+            JButton seat1 = new JButton(seatName);
+            System.out.println(seat1.getBackground());
+            left.add(seat1);
+            seatName = i+"b";
+            left.add(new JButton(seatName));
+            seatName = i+"c";
+            right.add(new JButton(seatName));
+            seatName = i+"d";
+            right.add(new JButton(seatName));
+            i++;
+         }
+       middle.add(new JButton());
+       
+       seatsContentPane.add(left, BorderLayout.WEST); 
+       seatsContentPane.add(middle, BorderLayout.CENTER);
+       seatsContentPane.add(right, BorderLayout.EAST);
+                
+       seatsDialog.pack();
+       seatsDialog.setLocationRelativeTo(frame);
+       seatsDialog.setResizable(false);
+       seatsDialog.setVisible(true);
     }
         
     /*
@@ -210,7 +245,7 @@ public class GUI{
                 customers.add(customer);
                 int seats = seatsRemaining;
                 seatsRemaining = seats-1;
-                if(seatsRemaining < 0) {
+                if(seatsRemaining > 0) {
                     createCustomer(seatsRemaining);
                 }
                 else {
@@ -431,6 +466,17 @@ public class GUI{
                 model.addElement(val);
             }
         }
+     }
+     
+     private class SeatsActionListener implements ActionListener{
+         
+         public void SeatsActionListener(JButton jb) {
+             
+         }
+         
+         public void actionPerformed(ActionEvent e) {
+             jb.setBackground(COLOR.RED);
+         }
      }
             
 }
