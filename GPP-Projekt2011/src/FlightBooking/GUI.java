@@ -21,14 +21,16 @@ public class GUI{
     private JComboBox startComboBox;
     private JComboBox endComboBox;
     private Database database;
-    private ArrayList<Customer> customers; 
+    private ArrayList<Seat> seats;
+    
+    
     public GUI() {
         try {
             database = new Database();
         } catch (SQLException ex) {
             System.out.println("Initialisation action exception : " + ex);
         }
-        customers = new ArrayList<Customer>();
+        seats = new ArrayList<Seat>();
         makeFrame();
     }
     
@@ -94,7 +96,7 @@ public class GUI{
      * 
      */
     private void makeReservation() {
-    chooseSeats("Hej", 40);
+    chooseSeats("Hej", 80);
     }
     
     private void chooseDate() {
@@ -126,6 +128,8 @@ public class GUI{
            }
         }
     }
+    
+    
     private void chooseFlight(String year, String month, String day) {
         JPanel flightChoice = new JPanel(new GridLayout(0,1));
         
@@ -157,70 +161,74 @@ public class GUI{
         }
     }
     
+    
     private void chooseSeats(String flightID, int numberOfSeats) {
         JDialog seatsDialog = new JDialog(frame);
         
        Container seatsContentPane = seatsDialog.getContentPane();
        
-       JButton seat = new JButton();
-       JPanel left = new JPanel(new GridLayout(10,2));
-       JPanel right = new JPanel(new GridLayout(10,2));
-       JPanel middle = new JPanel(new GridLayout(1,1));
-       
        int seatsInColumn = numberOfSeats/4;
+       JButton seat = new JButton();
+       JPanel left = new JPanel(new GridLayout(seatsInColumn,2));
+       JPanel right = new JPanel(new GridLayout(seatsInColumn,2));
+       JPanel middle = new JPanel(new GridLayout(1,1));
+       JPanel south = new JPanel(new GridLayout(1,1));
+       
        int i = 1;
+       int j = 0;
        String seatName;
+       JButton[] button = new JButton[numberOfSeats]; 
          while(i<=seatsInColumn) {
             seatName = i+"a";
             seat = new JButton(seatName);
             seat.setBackground(Color.GREEN);
             seat.addActionListener(new SeatsActionListener());
             left.add(seat);
+            button[j] = seat;
+            j++;
+            
             seatName = i+"b";
             seat = new JButton(seatName);
-            left.add(seat);
             seat.setBackground(Color.GREEN);
             seat.addActionListener(new SeatsActionListener());
+            left.add(seat);
+            button[j] = seat;
+            j++;
+            
             seatName = i+"c";
             seat = new JButton(seatName);
-            right.add(seat);
             seat.setBackground(Color.GREEN);
             seat.addActionListener(new SeatsActionListener());
+            right.add(seat);
+            button[j] = seat;
+            j++;
+            
             seatName = i+"d";
             seat = new JButton(seatName);
-            right.add(seat);
             seat.setBackground(Color.GREEN);
             seat.addActionListener(new SeatsActionListener());
+            right.add(seat);
+            button[j] = seat;
+            j++;
+            
             i++;
          }
        middle.add(new JButton()).setEnabled(false);
+       JButton save = new JButton("save");
+       south.add(save);
+       save.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) { saveChosenSeats(); }
+            });
        
        seatsContentPane.add(left, BorderLayout.WEST); 
        seatsContentPane.add(middle, BorderLayout.CENTER);
        seatsContentPane.add(right, BorderLayout.EAST);
+       seatsContentPane.add(south, BorderLayout.SOUTH);
        
-       makeSeatsMenuBar(seatsDialog);
        seatsDialog.pack();
        seatsDialog.setLocationRelativeTo(frame);
        seatsDialog.setResizable(false);
        seatsDialog.setVisible(true);
-    }
-    
-    private void makeSeatsMenuBar(JDialog seatsDialog) {
-        JMenuBar menubar = new JMenuBar();
-        seatsDialog.setJMenuBar(menubar);
-        
-        JMenu menu;
-        JMenuItem item;
-        
-        menu = new JMenu("Options");
-        menubar.add(menu);
-        
-        item = new JMenuItem("Save chosen seats");
-            item.addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent e) { saveChosenSeats(); }
-            });
-        menu.add(item);
     }
     
     private void saveChosenSeats() {
@@ -233,7 +241,7 @@ public class GUI{
      */
     private void createCustomer(int numberOfSeats) {    
         
-        int seatsRemaining= numberOfSeats;
+        int seatsRemaining = numberOfSeats;
         JTextField firstName = new JTextField();
         JTextField lastName = new JTextField();
         JTextField country = new JTextField();
@@ -261,10 +269,10 @@ public class GUI{
         JOptionPane inputDialog = new JOptionPane();
         int result = inputDialog.showConfirmDialog(frame, cosInput, "Customer Information", inputDialog.OK_CANCEL_OPTION);
         if(result == inputDialog.YES_OPTION) {
-            if(firstName.getAction() == null || lastName.getAction() == null || 
-               country.getAction() == null || city.getAction() == null || 
-               address.getAction() == null || email.getAction() == null ||
-               phoneNumber.getAction() == null || isIntNumber(phoneNumber.getText()) == false) {
+            if(firstName.getText() == "" || lastName.getText() == "" || 
+               country.getText() == "" || city.getText() == "" || 
+               address.getText() == "" || email.getText() == "" ||
+               phoneNumber.getText() == "" || isIntNumber(phoneNumber.getText()) == false) {
                 
                 JOptionPane errorDialog = new JOptionPane();
                     errorDialog.showMessageDialog(frame, "Error! input was incorrect, try again.");
@@ -273,31 +281,55 @@ public class GUI{
             else {
                 Customer customer = new Customer(firstName.getText(), lastName.getText(), country.getText(), city.getText(),
                         address.getText(), email.getText(), phoneNumber.getText());
-                customers.add(customer);
-                int seats = seatsRemaining;
-                seatsRemaining = seats-1;
-                if(seatsRemaining > 0) {
-                    createCustomer(seatsRemaining);
-                }
-                else {
-                    makeOrder();
-                }
+                seatsRemaining = seatsRemaining-1;
+                createAdditionalCustomers(seatsRemaining, customer);
             }            
         }
         //If you choose cancel or just try to close the window a "are you sure"-box will appear.
         else {
             JOptionPane cancelDialog = new JOptionPane();
-            int cancelResult = cancelDialog.showConfirmDialog(frame,"Are you sure you wish to quit? " +
-                                                              "If you have already made customers, these will be deleted.",
+            int cancelResult = cancelDialog.showConfirmDialog(frame,"Are you sure you wish to quit?",
                                                               "Customer Information", inputDialog.OK_CANCEL_OPTION);
-            //If you are sure, all customers saved so far, will be deleted, and the booking process will be terminated.
-            if(cancelResult == cancelDialog.YES_OPTION && customers.isEmpty()== false) {
-                customers.clear();
+            if(cancelResult == cancelDialog.NO_OPTION) {
+                createCustomer(numberOfSeats);
             }
         }
     }
     
-    private void makeOrder() {
+    private void createAdditionalCustomers(int seatsRemaining, Customer customer) {
+          
+        JPanel cosInput = new JPanel(new GridLayout(0,1));
+        
+        JTextField[] additionalCustomerNames = new JTextField[seatsRemaining];
+        for(int j = 0; j<seatsRemaining; j++) {
+            
+            JTextField name = new JTextField("Name");
+            additionalCustomerNames[j] = name;
+            
+            cosInput.add(new JLabel("Traveller" + (j+1)+":"));
+            cosInput.add(name);
+ 
+        }
+        
+        JOptionPane inputDialog = new JOptionPane();
+        int cosResult = inputDialog.showConfirmDialog(frame, cosInput, "Additional Travellers Names", inputDialog.OK_CANCEL_OPTION);
+        if(cosResult == inputDialog.YES_OPTION) {
+            for(int k = 0; k<additionalCustomerNames.length; k++) {
+                if(additionalCustomerNames[k].getText() == "Name") {
+                    JOptionPane errorDialog = new JOptionPane();
+                    errorDialog.showMessageDialog(null, "Error! all input was not a name!");
+                    createAdditionalCustomers(seatsRemaining, customer);
+                }
+            }
+            String customerNames = "";
+            for(int k = 0; k<additionalCustomerNames.length; k++) {
+               customerNames = customerNames+(additionalCustomerNames[k].getText())+" ";
+            }
+            makeOrder(customerNames, customer);
+        }
+    }
+    
+    private void makeOrder(String travellers, Customer customer) {
         JPanel orderInput = new JPanel(new GridLayout(0,1));
 
         JTextField customerID = new JTextField("customer ID");
@@ -333,57 +365,6 @@ public class GUI{
            }
         }
     }
-       
-    
-    /**
-     * A method for choosing a type of car.
-     * @return the chosen type of car. KAN FORMENTLIG BRUGES IGEN.
-     */
-    /* private void chooseFlightTestMethod() {
-        String[] carTypes = {"type1", "type2", "type3", "type4", "type5"};
-        
-        final JFrame carFrame = new JFrame("Choose Flight");       
-       
-        JPanel carContentPane = (JPanel)carFrame.getContentPane();
-        JPanel buttonRow1 = new JPanel(new GridLayout(0,1));
-        JPanel buttonRow2 =new JPanel (new GridLayout(0,1));
-        
-        carContentPane.setBorder(new EmptyBorder(6, 6, 6, 6));
-        carContentPane.add(buttonRow1, BorderLayout.WEST);
-        carContentPane.add(buttonRow2, BorderLayout.EAST);
-        
-        int firstRow = carTypes.length/2;
-        int secondRow = carTypes.length - carTypes.length/2;
-        
-        for(int i = 0; i <= firstRow; i++) {
-            final JButton button = new JButton(carTypes[i]);
-            button.addActionListener(new ActionListener() {
-                
-                public void actionPerformed(ActionEvent e)
-                {
-                    carFrame.dispose();
-                    carTypeChosen(button.getText());
-                }
-            });    
-            buttonRow1.add(button);
-        }
-        
-        for (int i = carTypes.length-1; i >= secondRow; i--) {
-            final JButton button = new JButton(carTypes[i]);
-            button.addActionListener(new ActionListener() {
-                
-                public void actionPerformed(ActionEvent e)
-                {
-                    carFrame.dispose();
-                    carTypeChosen(button.getText());
-                }
-            });    
-            buttonRow2.add(button);
-        }
-        
-        carFrame.pack();
-        carFrame.setVisible(true);
-    }*/
     
     /**
      * SER UD TIL AT KUNNE BRUGES IGEN. MANGLER DOG SELVE EDIT/DELETE DELEN.
@@ -519,6 +500,5 @@ public class GUI{
                 }
             }
          }
-    }
-            
+    }           
 }
