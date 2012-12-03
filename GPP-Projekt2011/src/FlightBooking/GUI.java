@@ -18,10 +18,8 @@ public class GUI{
     
     private JFrame frame;
     private JPanel contentPane;
-    private JComboBox startComboBox;
-    private JComboBox endComboBox;
+    private JComboBox startComboBox, endComboBox;
     private Database database;
-    private ArrayList<Seat> seats;
     
     
     public GUI() {
@@ -30,7 +28,6 @@ public class GUI{
         } catch (SQLException ex) {
             System.out.println("Initialisation action exception : " + ex);
         }
-        seats = new ArrayList<Seat>();
         makeFrame();
     }
     
@@ -93,18 +90,22 @@ public class GUI{
     
     
     /**
-     * 
+     * Starts the process of booking seat(s) on a flight.
      */
     private void makeReservation() {
-    chooseSeats("Hej", 80);
+        
     }
     
+    
+    /*
+     * This method is used for determining which date the customer wishes to depart.
+     */
     private void chooseDate() {
         JPanel dateInput = new JPanel(new GridLayout(0,1));
 
-        JTextField startYear = new JTextField("yyyy");
-        JTextField startMonth = new JTextField("mm");
-        JTextField startDay = new JTextField("dd");
+        JTextField startYear = new JTextField("year");
+        JTextField startMonth = new JTextField("month");
+        JTextField startDay = new JTextField("day");
 
         dateInput.add(new JLabel("Please select date of departure."));
         dateInput.add(startYear);
@@ -115,21 +116,45 @@ public class GUI{
         int result = inputDialog.showConfirmDialog(frame, dateInput, "Search Option", inputDialog.OK_CANCEL_OPTION);
         
         if(result == inputDialog.YES_OPTION) {
-           if(isIntNumber(startYear.getText()) == false || 
-              isIntNumber(startMonth.getText()) == false || 
-              isIntNumber(startDay.getText()) == false) {
+           if(isIntNumber(startYear.getText()) == false || (startMonth.getText()).length() != 4 ||
+              isIntNumber(startMonth.getText()) == false || (startMonth.getText()).length() > 2 ||
+              isIntNumber(startDay.getText()) == false ||(startMonth.getText()).length() > 2) {
               
                 JOptionPane errorDialog = new JOptionPane();
                 errorDialog.showMessageDialog(null, "Error! input was not a date!");
                 chooseDate();
            }
-           else {
-               chooseFlight(startYear.getText(), startMonth.getText(), startDay.getText());
-           }
-        }
+           else { 
+               //turns the input into integers after we've checked if they are indeed integers.
+               String startMonthTemp = new String(startMonth.getText());
+               String startDayTemp = new String(startDay.getText());
+               int year = Integer.parseInt(startYear.getText());
+               int month = Integer.parseInt(startMonth.getText());
+               int day = Integer.parseInt(startDay.getText());
+               
+               //A check for whenever the month and day inputs are written in, for instance, 02 or 2. 
+               //If the first is the case, it's changed to 2.
+               if((startMonth.getText()).contains("0") == true) {
+                   startMonthTemp.substring((startMonth.getText()).length()-1);
+                   month = Integer.parseInt(startMonthTemp);
+               }
+               if((startDay.getText()).contains("0") == true) {
+                   startDayTemp.substring((startDay.getText()).length()-1);
+                   day = Integer.parseInt(startDayTemp);
+               }
+               NewDate date = new NewDate(year, month, day);
+               chooseFlight(startYear.getText(), startMonth.getText(), startDay.getText()); 
+          }
+    
+       }
     }
     
     
+    /*
+     * From the given date, the flights are found and put into JComoboBoxes(dropdown menues). 
+     * The 2nd JComboBox's content changes when a value is selected in the first JCombobox. This is
+     * handled by our inner class JComboBoxActionListener.
+     */
     private void chooseFlight(String year, String month, String day) {
         JPanel flightChoice = new JPanel(new GridLayout(0,1));
         
@@ -162,6 +187,9 @@ public class GUI{
     }
     
     
+    /*
+     * Makes a window with all seats on the plain. Booked seats are red, available are green and chosen seats are blue.
+     */
     private void chooseSeats(String flightID, int numberOfSeats) {
         JDialog seatsDialog = new JDialog(frame);
         
@@ -213,12 +241,18 @@ public class GUI{
             
             i++;
          }
+       
+         //These fields are declared final at this point, so the ActionListener on the save button can access them.
+       final JButton[] buttonFinished = button;
+       final String chosenFlight = flightID;
+       final int seats = numberOfSeats;
+       
        middle.add(new JButton()).setEnabled(false);
-       JButton save = new JButton("save");
+       JButton save = new JButton("Save");
        south.add(save);
        save.addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent e) { saveChosenSeats(); }
-            });
+                                public void actionPerformed(ActionEvent e) { saveChosenSeats(buttonFinished, chosenFlight, seats); }
+                              });
        
        seatsContentPane.add(left, BorderLayout.WEST); 
        seatsContentPane.add(middle, BorderLayout.CENTER);
@@ -231,15 +265,45 @@ public class GUI{
        seatsDialog.setVisible(true);
     }
     
-    private void saveChosenSeats() {
+    private void saveChosenSeats(JButton[] button, String flightID, int numberOfSeats) {
+        int seats = 0;
+        String nameOfSeats = new String();
         
+        for(int i = 0; i<button.length; i++) {
+            if(button[i].getBackground() == Color.BLUE) {
+                nameOfSeats = nameOfSeats+((button[i]).getText() + " ");
+                seats++;
+            }
+        }
+        //If you have chosen any seats, you're asked to go back, otherwise it will end the process.
+        if(seats == 0) {
+            JOptionPane errorDialog = new JOptionPane();
+            int errorResult = errorDialog.showConfirmDialog(frame,"You did not choose any seats,"
+                                                            + " do you wish to go back and select seats again?",
+                                                            "No seats selected", errorDialog.OK_CANCEL_OPTION);
+            if(errorResult == errorDialog.YES_OPTION) {
+                chooseSeats(flightID, numberOfSeats);
+            }
+        }
+        //If you have chosen seats, you will be shown how many and which, whereafter it will continue til creating customers.
+        else if(seats > 0) {
+            JOptionPane succesDialog = new JOptionPane();
+            int succesResult = succesDialog.showConfirmDialog(frame,"You have chosen: " + seats + " seat(s). Name of chosen seat(s): "+ nameOfSeats,
+                                                            "Confirm your choice", succesDialog.OK_CANCEL_OPTION);
+            if(succesResult == succesDialog.YES_OPTION) {
+                createCustomer(seats, nameOfSeats);
+            }
+            else {
+                chooseSeats(flightID, numberOfSeats);
+            }
+        }
     }
-        
+    
+    
     /*
-     * Creates customers that are put into an array and send on in the booking process.
-     * Method is repeated until there is a customer of each of the chosen seats.
+     * 
      */
-    private void createCustomer(int numberOfSeats) {    
+    private void createCustomer(int numberOfSeats, String nameOfSeats) {    
         
         int seatsRemaining = numberOfSeats;
         JTextField firstName = new JTextField();
@@ -268,7 +332,10 @@ public class GUI{
         
         JOptionPane inputDialog = new JOptionPane();
         int result = inputDialog.showConfirmDialog(frame, cosInput, "Customer Information", inputDialog.OK_CANCEL_OPTION);
+        
+        //Checks if the input is valid. If it isn't, error dialog appears and makes you try again.
         if(result == inputDialog.YES_OPTION) {
+            
             if(firstName.getText() == "" || lastName.getText() == "" || 
                country.getText() == "" || city.getText() == "" || 
                address.getText() == "" || email.getText() == "" ||
@@ -276,34 +343,53 @@ public class GUI{
                 
                 JOptionPane errorDialog = new JOptionPane();
                     errorDialog.showMessageDialog(frame, "Error! input was incorrect, try again.");
-                    createCustomer(seatsRemaining);
+                    createCustomer(seatsRemaining, nameOfSeats);
             }
+            
+            //If correct input, we proceed to creating additional customers if there's more than one customer.
             else {
                 Customer customer = new Customer(firstName.getText(), lastName.getText(), country.getText(), city.getText(),
                         address.getText(), email.getText(), phoneNumber.getText());
-                seatsRemaining = seatsRemaining-1;
-                createAdditionalCustomers(seatsRemaining, customer);
+                seatsRemaining--;
+                //This string is used when saving the names of traveller(s) in the database.
+                String traveller = firstName.getText() + lastName.getText();
+                
+                //If there's only one, we proceed directly to making the order.
+                if(seatsRemaining == 0) {
+                    makeOrder(traveller, customer, nameOfSeats); 
+                }
+                //If there's more than one traveller, the remaining will be created in the next step.
+                else{
+                  createAdditionalCustomers(seatsRemaining, customer, traveller, nameOfSeats);
+                }
             }            
         }
+        
         //If you choose cancel or just try to close the window a "are you sure"-box will appear.
         else {
             JOptionPane cancelDialog = new JOptionPane();
             int cancelResult = cancelDialog.showConfirmDialog(frame,"Are you sure you wish to quit?",
                                                               "Customer Information", inputDialog.OK_CANCEL_OPTION);
             if(cancelResult == cancelDialog.NO_OPTION) {
-                createCustomer(numberOfSeats);
+                createCustomer(numberOfSeats, nameOfSeats);
             }
         }
     }
     
-    private void createAdditionalCustomers(int seatsRemaining, Customer customer) {
+    
+    /*
+     * This method gets the names of the additional travellers if there are any. The names are added to the string.
+     * 
+     */
+    private void createAdditionalCustomers(int seatsRemaining, Customer customer, String travellerNames, String nameOfSeats) {
           
         JPanel cosInput = new JPanel(new GridLayout(0,1));
         
+        //Creates as many textfields as there are remaining seats.
         JTextField[] additionalCustomerNames = new JTextField[seatsRemaining];
         for(int j = 0; j<seatsRemaining; j++) {
             
-            JTextField name = new JTextField("Name");
+            JTextField name = new JTextField("Full name");
             additionalCustomerNames[j] = name;
             
             cosInput.add(new JLabel("Traveller" + (j+1)+":"));
@@ -314,57 +400,37 @@ public class GUI{
         JOptionPane inputDialog = new JOptionPane();
         int cosResult = inputDialog.showConfirmDialog(frame, cosInput, "Additional Travellers Names", inputDialog.OK_CANCEL_OPTION);
         if(cosResult == inputDialog.YES_OPTION) {
+            
             for(int k = 0; k<additionalCustomerNames.length; k++) {
-                if(additionalCustomerNames[k].getText() == "Name") {
+                if(additionalCustomerNames[k].getText() == "Full name") {
                     JOptionPane errorDialog = new JOptionPane();
                     errorDialog.showMessageDialog(null, "Error! all input was not a name!");
-                    createAdditionalCustomers(seatsRemaining, customer);
+                    createAdditionalCustomers(seatsRemaining, customer, travellerNames, nameOfSeats);
                 }
             }
-            String customerNames = "";
+            
+            //For each traveller, the traveller's name is added to the string from createCustomer.
             for(int k = 0; k<additionalCustomerNames.length; k++) {
-               customerNames = customerNames+(additionalCustomerNames[k].getText())+" ";
+               travellerNames = travellerNames+(additionalCustomerNames[k].getText())+" ";
             }
-            makeOrder(customerNames, customer);
+            makeOrder(travellerNames, customer, nameOfSeats);
         }
+    }
+   
+    
+    private void makeOrder(String travellers, Customer customer, String nameOfSeats) {
+                try {
+                    customer.insert(database);
+                    int customerID = customer.getKey();
+                    Order order = new Order(customerID, 2, nameOfSeats, travellers);
+                    order.insert(database);
+                } 
+                
+                catch (SQLException ex) {
+                    System.out.println("Saving order failed. Exception: " + ex);
+                }
     }
     
-    private void makeOrder(String travellers, Customer customer) {
-        JPanel orderInput = new JPanel(new GridLayout(0,1));
-
-        JTextField customerID = new JTextField("customer ID");
-        JTextField flightID = new JTextField("flight ID");
-        JTextField seatID = new JTextField("seat ID");
-
-        orderInput.add(new JLabel("Mark er Gud, fuck hoveder!"));
-        orderInput.add(customerID);
-        orderInput.add(flightID);
-        orderInput.add(seatID);
-        
-        JOptionPane inputDialog = new JOptionPane();
-        int result = inputDialog.showConfirmDialog(frame, orderInput, "Search Option", inputDialog.OK_CANCEL_OPTION);
-        
-        if(result == inputDialog.YES_OPTION) {
-           if(isIntNumber(customerID.getText()) == false || 
-              isIntNumber(flightID.getText()) == false || 
-              isIntNumber(seatID.getText()) == false) {
-              
-                JOptionPane errorDialog = new JOptionPane();
-                errorDialog.showMessageDialog(null, "Error! input was not a date!");
-                chooseDate();
-           }
-           else { 
-                try {
-                    Order order = new Order(stringConverter(customerID.getText()),
-                                            stringConverter(flightID.getText()),
-                                            stringConverter(seatID.getText()));
-                    order.insert(database);
-                } catch (SQLException ex) {
-                    System.out.println("Order action exception: " + ex);
-                }
-           }
-        }
-    }
     
     /**
      * SER UD TIL AT KUNNE BRUGES IGEN. MANGLER DOG SELVE EDIT/DELETE DELEN.
@@ -412,6 +478,7 @@ public class GUI{
         }
     }
     
+    
     /**
      * Adds a picture to the contentpane.
      */
@@ -428,6 +495,7 @@ public class GUI{
         frame.setVisible(true);
     }
     
+    
      /**
      * Is used to check if a string is a integer. In our case this is used for checking
      * input data from textfields.
@@ -442,14 +510,6 @@ public class GUI{
         return true;
      }
      
-     private int stringConverter(String string) {
-         int integer = Integer.parseInt(string);
-         return integer;
-     }
-     
-     private void changeColorRed(JButton JB) {
-         JB.setBackground(Color.RED);
-     }
      
      /**
       * When a Start Airport is chosen, the Destination box will change to
@@ -500,5 +560,5 @@ public class GUI{
                 }
             }
          }
-    }           
+    }
 }

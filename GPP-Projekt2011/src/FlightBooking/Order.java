@@ -6,13 +6,15 @@ import java.sql.*;
  * @author Lollike
  */
 public class Order {
-    private int key, customer, flight, seat;
+    private int key, customer, flight;
+    private String seat, name;
     
-    public Order(int c, int f, int s) {
+    public Order(int c, int f, String s, String n) {
         key = 0;
         customer = c;
         flight = f;
         seat = s;
+        name = n;
     }
     
     public void init(ResultSet rs) throws SQLException {

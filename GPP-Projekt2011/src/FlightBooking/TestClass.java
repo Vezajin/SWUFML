@@ -23,11 +23,11 @@ public class TestClass {
             Customer customer = new Customer("Michael", "Johansson", "Sweden", "Stockholm", "Testvejen", "59473625", "en@mail.se");
             customer.insert(db);
             
-            NewDate d = new NewDate(2012, "12", 9);
+            NewDate d = new NewDate(2012, 12, 9);
             Flight flight = new Flight(1, 2, d.getDate(), 100);
             flight.insert(db);
             
-            Seat s = new Seat(3, 7);
+            Seat s = new Seat(3, 7, 50, "Test");
             s.insert(db);
             
         } catch (SQLException ex) {
@@ -52,7 +52,7 @@ public class TestClass {
     
     public void testMakeFlight() throws SQLException {
         Database db = new Database();
-        Flight f = new Flight(4, 4, new NewDate(2012, "12", 12).getDate(), 100);
+        Flight f = new Flight(4, 4, new NewDate(2012, 12, 12).getDate(), 100);
         f.insert(db);
     }
 }

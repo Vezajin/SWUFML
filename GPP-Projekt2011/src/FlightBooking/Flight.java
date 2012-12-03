@@ -24,6 +24,7 @@ public class Flight {
         Seat Seats[] = new Seat[ns];
     }
     
+    
     public void init(ResultSet rs) throws SQLException {
         key = rs.getInt("id");
         startdes = rs.getInt("startdestination");
