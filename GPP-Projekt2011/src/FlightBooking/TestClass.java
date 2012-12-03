@@ -38,7 +38,7 @@ public class TestClass {
     public void testMakeOrder1() throws SQLException {
         try {
             Database db = new Database();
-            Order o = new Order(4, 10, 5);
+            Order o = new Order(4, 10, "1a, 2a", "mand1, mand2");
             o.insert(db);
         } catch (SQLException ex) {
             Logger.getLogger(TestClass.class.getName()).log(Level.SEVERE, null, ex);

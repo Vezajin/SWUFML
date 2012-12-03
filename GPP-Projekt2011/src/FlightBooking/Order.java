@@ -21,7 +21,8 @@ public class Order {
         key = rs.getInt("id");
         customer = rs.getInt("customerid");
         flight = rs.getInt("flightid");
-        seat = rs.getInt("seatid");
+        seat = rs.getString("seatstring");
+        name = rs.getString("namestring");
     }
     
     public Order(Database db, int k) throws SQLException {
@@ -31,8 +32,8 @@ public class Order {
     }
     
     public void insert(Database db) throws SQLException {
-        db.execute("INSERT INTO Orders (customerid, flightid, seatid) VALUES ('" 
-                + customer + "', '" + flight + "', '" + seat + "')");
+        db.execute("INSERT INTO Orders (customerid, flightid, seatstring, namestring) VALUES ('" 
+                + customer + "', '" + flight + "', '" + seat + "', '" + name + "')");
         ResultSet rs = db.execute("SELECT MAX(id) as 'max' FROM Orders");
         rs.next();
         key = rs.getInt("max");
@@ -46,7 +47,10 @@ public class Order {
         return flight;
     }
     
-    public int getSeat() {
+    public String getSeat() {
         return seat;
+    }
+    public String getName() {
+        return name;
     }
 }
