@@ -6,10 +6,8 @@ import java.awt.event.*;
 import java.sql.SQLException;
 import javax.swing.*;
 import javax.swing.border.*;
-<<<<<<< HEAD
-=======
 import java.sql.*;
->>>>>>> 27th commit
+
 
 
 /**
