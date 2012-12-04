@@ -8,13 +8,12 @@ import java.sql.*;
 
 
 /**
- *
+ *  
  * @author Lollike
  */
 public class Flight {
     private int key, startdes, enddes, numberOfSeats;
     private Date date;
-    
     public Flight(int s, int e, Date d, int ns) {
         key = 0;
         startdes = s;

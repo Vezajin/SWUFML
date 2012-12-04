@@ -63,5 +63,9 @@ public class NewDate {
    public Date getDate() {
        return date;
    }
+   
+   public int getDateInt() {
+       return 4;
+   }
 }
 
