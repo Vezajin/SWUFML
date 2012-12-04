@@ -5,10 +5,9 @@ import java.awt.*;
 import java.awt.event.*;
 import java.sql.SQLException;
 import javax.swing.*;
-import javax.swing.border.*;
 import java.sql.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.*;
+import java.util.ArrayList;
 
 
 
@@ -23,6 +22,7 @@ public class GUI {
     private JPanel contentPane;
     private JComboBox startComboBox, endComboBox;
     private Database database;
+    private FlightScanner flightScanner;
     
     
     public GUI() {
@@ -32,6 +32,7 @@ public class GUI {
             System.out.println("Initialisation exception: " + ex);
         }
         makeFrame();
+        flightScanner = new FlightScanner();
     }
     
     
@@ -75,11 +76,11 @@ public class GUI {
             });
         menu.add(item);
         
-        /*item = new JMenuItem("See Reservations");
+        item = new JMenuItem("TEST");
             item.addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent e) { seeResevations(); }
+                public void actionPerformed(ActionEvent e) { chooseSeats(10, 40); }
             });
-        menu.add(item);*/
+        menu.add(item);
         
         menu = new JMenu("Flights");
         menubar.add(menu);
@@ -188,7 +189,7 @@ public class GUI {
             }
             else {
                 //Send den valgtes flightID til chooseSeats.
-                chooseSeats("123432", 40);
+                chooseSeats(12, 40);
             }
         }
     }
@@ -197,23 +198,24 @@ public class GUI {
     /*
      * Makes a window with all seats on the plain. Booked seats are red, available are green and chosen seats are blue.
      */
-    private void chooseSeats(String flightID, int numberOfSeats) {
+    private void chooseSeats(int flightID, int numberOfSeats) {
         JDialog seatsDialog = new JDialog(frame);
         
-       Container seatsContentPane = seatsDialog.getContentPane();
+        Container seatsContentPane = seatsDialog.getContentPane();
        
-       int seatsInColumn = numberOfSeats/4;
-       JButton seat = new JButton();
-       JPanel left = new JPanel(new GridLayout(seatsInColumn,2));
-       JPanel right = new JPanel(new GridLayout(seatsInColumn,2));
-       JPanel middle = new JPanel(new GridLayout(1,1));
-       JPanel south = new JPanel(new GridLayout(1,1));
+        int seatsInColumn = numberOfSeats/4;
+        JButton seat = new JButton();
+        JPanel left = new JPanel(new GridLayout(seatsInColumn,2));
+        JPanel right = new JPanel(new GridLayout(seatsInColumn,2));
+        JPanel middle = new JPanel(new GridLayout(1,1));
+        JPanel south = new JPanel(new GridLayout(1,1));
        
-       int i = 1;
-       int j = 0;
-       String seatName;
-       JButton[] button = new JButton[numberOfSeats]; 
-         while(i<=seatsInColumn) {
+        int i = 1;
+        int j = 0;
+        String seatName;
+        JButton[] button = new JButton[numberOfSeats]; 
+         
+        while(i<=seatsInColumn) {
             seatName = i+"a";
             seat = new JButton(seatName);
             seat.setBackground(Color.GREEN);
@@ -247,12 +249,32 @@ public class GUI {
             j++;
             
             i++;
-         }
+        }
+        
+        ArrayList<String> bookedSeats = new ArrayList<String>(); 
+        try {
+            ResultSet rs = database.execute("SELECT seatstring FROM Orders WHERE flightid = " + flightID);
+            while(rs.next()) {
+                bookedSeats = (flightScanner.seatAnalyser(rs.getString("seatstring")));
+                for(int k = 0; k<bookedSeats.size(); k++) {
+                    System.out.println(bookedSeats.get(k));
+                    for(int m = 0; m <button.length; m++) {
+                        if((button[m].getText()).equals(bookedSeats.get(k))) {
+                            button[m].setBackground(Color.RED);
+                            button[m].setEnabled(false);
+                        }
+                    }
+                }
+            }
+        }
+        catch (SQLException ex) {
+            System.out.println("finding order exception : " + ex);
+        }
          
        
          //These fields are declared final at this point, so the ActionListener on the save button can access them.
        final JButton[] buttonFinished = button;
-       final String chosenFlight = flightID;
+       final int chosenFlight = flightID;
        final int seats = numberOfSeats;
        
        middle.add(new JButton()).setEnabled(false);
@@ -273,7 +295,7 @@ public class GUI {
        seatsDialog.setVisible(true);
     }
     
-    private void saveChosenSeats(JButton[] button, String flightID, int numberOfSeats) {
+    private void saveChosenSeats(JButton[] button, int flightID, int numberOfSeats) {
         int seats = 0;
         String nameOfSeats = new String();
         

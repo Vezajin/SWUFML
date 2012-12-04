@@ -167,7 +167,7 @@ public class GUIfunfun {
               
         flightChoice.add(new JLabel("From what airport?"));
         flightChoice.add(startComboBox);
-        startComboBox.addActionListener(new JComboBoxActionListener(this));
+        //startComboBox.addActionListener(new JComboBoxActionListener(this));
         
         String[] destinations = {"Nothing Selected"};
         endComboBox = new JComboBox(destinations);
