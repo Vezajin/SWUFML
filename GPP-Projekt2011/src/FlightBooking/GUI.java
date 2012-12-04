@@ -29,7 +29,7 @@ public class GUI {
         try {
             database = new Database();
         } catch (SQLException ex) {
-            System.out.println("Initialisation action exception : " + ex);
+            System.out.println("Initialisation exception: " + ex);
         }
         makeFrame();
     }
@@ -248,6 +248,7 @@ public class GUI {
             
             i++;
          }
+         
        
          //These fields are declared final at this point, so the ActionListener on the save button can access them.
        final JButton[] buttonFinished = button;
@@ -424,7 +425,7 @@ public class GUI {
             for(int k = 0; k<additionalCustomerNames.length; k++) {
                 if(additionalCustomerNames[k].getText() == "Full name") {
                     JOptionPane errorDialog = new JOptionPane();
-                    errorDialog.showMessageDialog(null, "Error! all input was not a name!");
+                    errorDialog.showMessageDialog(null, "Error! all the inputs was not a name!");
                     createAdditionalCustomers(seatsRemaining, customer, travellerNames, nameOfSeats);
                 }
             }
@@ -477,10 +478,9 @@ public class GUI {
                     //ResultSet rs = database.execute("SELECT * FROM Customer WHERE id = " + cusID.getText() +
                     //      " AND phonenumber = " + phoneNumber.getText());
                     Order order = new Order(database, Integer.parseInt(cusID.getText()));
-                    System.out.println("");
                 } 
                 catch (SQLException ex) {
-                    Logger.getLogger(GUI.class.getName()).log(Level.SEVERE, null, ex);
+                    System.out.println("finding order exception : " + ex);
                 }
             
             }

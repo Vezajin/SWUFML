@@ -14,13 +14,7 @@ public class FlightScanner {
      * Constructoren er et dårligt eksempel.
      */
     public FlightScanner() {
-            Scanner scan = new Scanner("Nikolja Lollike Mark Klitgård Frederik "
-                    + "Hoffmann Birgitte Hoffmann Johannes Døberen Snave Polle "
-                    + "Bølle Bob Hans Hansen Peter Petersen");
-            ArrayList<String> nameScan = new ArrayList<String>();        
-            while(scan.hasNext()== true) {
-            System.out.println(scan.next()+" " + scan.next());                                
-            }
+            
     }
         
     /**
@@ -60,5 +54,12 @@ public class FlightScanner {
                 nameScan.add(scan.next() + scan.next());                
             }
         return nameScan;
-    }        
+    } 
+    /*Scanner scan = new Scanner("Nikolja Lollike Mark Klitgård Frederik "
+                    + "Hoffmann Birgitte Hoffmann Johannes Døberen Snave Polle "
+                    + "Bølle Bob Hans Hansen Peter Petersen");
+            ArrayList<String> nameScan = new ArrayList<String>();        
+            while(scan.hasNext()== true) {
+            System.out.println(scan.next()+" " + scan.next());                                
+            }*/
 }
