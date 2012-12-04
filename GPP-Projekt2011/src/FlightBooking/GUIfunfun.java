@@ -7,8 +7,6 @@ import java.sql.SQLException;
 import javax.swing.*;
 import javax.swing.border.*;
 import java.sql.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 
 
@@ -17,7 +15,7 @@ import java.util.logging.Logger;
  * that takes care of representing the data to the user.
  * @author Mark
  */
-public class GUI {
+public class GUIfunfun {
     
     private JFrame frame;
     private JPanel contentPane;
@@ -25,7 +23,7 @@ public class GUI {
     private Database database;
     
     
-    public GUI() {
+    public GUIfunfun() {
         try {
             database = new Database();
         } catch (SQLException ex) {
@@ -321,25 +319,25 @@ public class GUI {
         JTextField address = new JTextField();
         JTextField email = new JTextField();
         JTextField phoneNumber = new JTextField();
-        JPanel cusInput = new JPanel(new GridLayout(0,1));
+        JPanel cosInput = new JPanel(new GridLayout(0,1));
         
-        cusInput.add(new JLabel("First name:"));
-        cusInput.add(firstName);
-        cusInput.add(new JLabel("Last name:"));
-        cusInput.add(lastName);
-        cusInput.add(new JLabel("Country:"));
-        cusInput.add(country);
-        cusInput.add(new JLabel("City:"));
-        cusInput.add(city);
-        cusInput.add(new JLabel("Street and house number:"));
-        cusInput.add(address);
-        cusInput.add(new JLabel("Email:"));
-        cusInput.add(email);
-        cusInput.add(new JLabel("Phone number"));
-        cusInput.add(phoneNumber);
+        cosInput.add(new JLabel("First name:"));
+        cosInput.add(firstName);
+        cosInput.add(new JLabel("Last name:"));
+        cosInput.add(lastName);
+        cosInput.add(new JLabel("Country:"));
+        cosInput.add(country);
+        cosInput.add(new JLabel("City:"));
+        cosInput.add(city);
+        cosInput.add(new JLabel("Street and house number:"));
+        cosInput.add(address);
+        cosInput.add(new JLabel("Email:"));
+        cosInput.add(email);
+        cosInput.add(new JLabel("Phone number"));
+        cosInput.add(phoneNumber);
         
         JOptionPane inputDialog = new JOptionPane();
-        int result = inputDialog.showConfirmDialog(frame, cusInput, "Customer Information", inputDialog.OK_CANCEL_OPTION);
+        int result = inputDialog.showConfirmDialog(frame, cosInput, "Customer Information", inputDialog.OK_CANCEL_OPTION);
         
         //Checks if the input is valid. If it isn't, error dialog appears and makes you try again.
         if(result == inputDialog.YES_OPTION) {
@@ -392,8 +390,8 @@ public class GUI {
      */
     private void createAdditionalCustomers(int seatsRemaining, Customer customer, String travellerNames, String nameOfSeats) {
           
-        JPanel cusInputWest = new JPanel(new GridLayout(0,1));
-        JPanel cusInputEast = new JPanel(new GridLayout(0,1));
+        JPanel cosInputWest = new JPanel(new GridLayout(0,1));
+        JPanel cosInputEast = new JPanel(new GridLayout(0,1));
         
         //Creates as many textfields as there are remaining seats.
         JTextField[] additionalCustomerNames = new JTextField[seatsRemaining];
@@ -403,23 +401,23 @@ public class GUI {
             additionalCustomerNames[j] = name;
             
             if(j%2 == 0) {
-            cusInputWest.add(new JLabel("Traveller" + (j+1)+":"));
-            cusInputWest.add(name);
+            cosInputWest.add(new JLabel("Traveller" + (j+1)+":"));
+            cosInputWest.add(name);
             }
             else {
-                cusInputEast.add(new JLabel("Traveller" + (j+1)+":"));
-                cusInputEast.add(name);
+                cosInputEast.add(new JLabel("Traveller" + (j+1)+":"));
+                cosInputEast.add(name);
             }
  
         }
-        JPanel cusInput = new JPanel(new GridLayout(0,3));
-        cusInput.add(cusInputWest);
-        cusInput.add(new JPanel());
-        cusInput.add(cusInputEast);
+        JPanel cosInput = new JPanel(new GridLayout(0,3));
+        cosInput.add(cosInputWest);
+        cosInput.add(new JPanel());
+        cosInput.add(cosInputEast);
         
         JOptionPane inputDialog = new JOptionPane();
-        int cusResult = inputDialog.showConfirmDialog(frame, cusInput, "Additional Travellers Names", inputDialog.OK_CANCEL_OPTION);
-        if(cusResult == inputDialog.YES_OPTION) {
+        int cosResult = inputDialog.showConfirmDialog(frame, cosInput, "Additional Travellers Names", inputDialog.OK_CANCEL_OPTION);
+        if(cosResult == inputDialog.YES_OPTION) {
             
             for(int k = 0; k<additionalCustomerNames.length; k++) {
                 if(additionalCustomerNames[k].getText() == "Full name") {
@@ -458,31 +456,42 @@ public class GUI {
     private void editReservation() {
         Object[] options = {"Edit Reservation", "Delete Reservation"};
         JTextField phoneNumber = new JTextField();
-            JTextField cusID = new JTextField();
-            JPanel cusInput = new JPanel(new GridLayout(0,1));
+            JTextField resID = new JTextField();
+            JPanel cosInput = new JPanel(new GridLayout(0,1));
             
-            cusInput.add(new JLabel("Customer phone number:"));
-            cusInput.add(phoneNumber);
-            cusInput.add(new JLabel("Customer ID:"));
-            cusInput.add(cusID);
+            cosInput.add(new JLabel("Only enter in one field please."));
+            cosInput.add(new JLabel("Customer phone number:"));
+            cosInput.add(phoneNumber);
+            cosInput.add(new JLabel("Reservation ID:"));
+            cosInput.add(resID);
             
-        int result = JOptionPane.showOptionDialog(frame, cusInput, 
+        int result = JOptionPane.showOptionDialog(frame, cosInput, 
                 "Edit or Delete Reservation", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, 
                 null, options,options[0]);
         
         //Checks if the input is valid
-        if(result == JOptionPane.YES_OPTION || result == JOptionPane.NO_OPTION) {
-            if(isIntNumber(cusID.getText()) == true || isIntNumber(phoneNumber.getText()) == true) {
-                try {
-                    ResultSet rs = database.execute("SELECT * FROM Customer WHERE id = " + cusID.getText() +
-                            " AND phonenumber = " + phoneNumber.getText());
-                    
-                    System.out.println(rs);
-                } 
-                catch (SQLException ex) {
-                    Logger.getLogger(GUI.class.getName()).log(Level.SEVERE, null, ex);
-                }
-            
+        if(result == JOptionPane.NO_OPTION) {
+            if(resID.getText() == null && phoneNumber.getText() == null || resID.getText() == null &&
+                    8 > phoneNumber.getText().length() || resID.getText() == null &&
+                    isIntNumber(phoneNumber.getText()) == false) {
+                JOptionPane errorDialog = new JOptionPane();
+                errorDialog.showMessageDialog(frame, "Error! input was incorrect, try again.");
+            }
+            else {
+                //Delete Reservation
+            }
+        }
+        
+        //Checks if the input is valid
+        if(result == JOptionPane.YES_OPTION) {
+            if(resID.getText() == null && phoneNumber.getText() == null || resID.getText() == null &&
+                    8 > phoneNumber.getText().length() || resID.getText() == null &&
+                    isIntNumber(phoneNumber.getText()) == false) {
+                JOptionPane errorDialog = new JOptionPane();
+                errorDialog.showMessageDialog(frame, "Error! input was incorrect, try again.");
+            }
+            else {
+                //Open window for editing reservation.
             }
         }
     }
