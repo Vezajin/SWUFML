@@ -41,7 +41,7 @@ public class Order {
  *  Initializes the ResultSet from the primary key id = k in the database.
  */    
     public Order(Database db, int k) throws SQLException {
-        ResultSet rs = db.execute("SELECT * FROM Orders WHERE id = " + k);
+        ResultSet rs = db.execute("SELECT * FROM Orders WHERE customerid = " + k);
         rs.next();
         init(rs);
     }

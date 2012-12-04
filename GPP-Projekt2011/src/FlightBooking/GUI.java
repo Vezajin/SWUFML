@@ -474,10 +474,10 @@ public class GUI {
         if(result == JOptionPane.YES_OPTION || result == JOptionPane.NO_OPTION) {
             if(isIntNumber(cusID.getText()) == true || isIntNumber(phoneNumber.getText()) == true) {
                 try {
-                    ResultSet rs = database.execute("SELECT * FROM Customer WHERE id = " + cusID.getText() +
-                            " AND phonenumber = " + phoneNumber.getText());
-                    
-                    System.out.println(rs);
+                    //ResultSet rs = database.execute("SELECT * FROM Customer WHERE id = " + cusID.getText() +
+                    //      " AND phonenumber = " + phoneNumber.getText());
+                    Order order = new Order(database, Integer.parseInt(cusID.getText()));
+                    System.out.println("");
                 } 
                 catch (SQLException ex) {
                     Logger.getLogger(GUI.class.getName()).log(Level.SEVERE, null, ex);
