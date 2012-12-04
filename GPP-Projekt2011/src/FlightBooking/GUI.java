@@ -93,7 +93,7 @@ public class GUI{
      * Starts the process of booking seat(s) on a flight.
      */
     private void makeReservation() {
-        
+        chooseDate();
     }
     
     
@@ -182,6 +182,7 @@ public class GUI{
             }
             else {
                 //Send den valgtes flightID til chooseSeats.
+                chooseSeats("123432", 40);
             }
         }
     }
@@ -293,6 +294,7 @@ public class GUI{
             if(succesResult == succesDialog.YES_OPTION) {
                 createCustomer(seats, nameOfSeats);
             }
+            //If you're not happy with your choice or try to close the window, you're sent back to choosing seats.
             else {
                 chooseSeats(flightID, numberOfSeats);
             }
@@ -301,7 +303,7 @@ public class GUI{
     
     
     /*
-     * 
+     * You create the traveller responsible for the tickets.
      */
     private void createCustomer(int numberOfSeats, String nameOfSeats) {    
         
@@ -378,7 +380,8 @@ public class GUI{
     
     
     /*
-     * This method gets the names of the additional travellers if there are any. The names are added to the string.
+     * This method gets the names of the additional travellers if there are any. 
+     * The names are added to the string travellerNames.
      * 
      */
     private void createAdditionalCustomers(int seatsRemaining, Customer customer, String travellerNames, String nameOfSeats) {
