@@ -6,13 +6,12 @@ import java.sql.*;
  * @author Nikolaj
  */
 public class Seat {
-    private int key, flightid, orderid, customerid;
+    private int key, flightid, customerid;
     private String seatName;
     
     public Seat(int f, int o, int c, String sn) {
         key = 0;
         flightid = f;
-        orderid = o;
         customerid = c;
         seatName = sn;
     }
@@ -20,7 +19,6 @@ public class Seat {
     public void init(ResultSet rs) throws SQLException {
         key = rs.getInt("id");
         flightid = rs.getInt("flightid");
-        orderid = rs.getInt("orderid");
         customerid = rs.getInt("customerid");
     }
     
@@ -31,7 +29,7 @@ public class Seat {
     }
     
     public void insert(Database db) throws SQLException {
-        db.execute ("INSERT INTO Seats (flightid, orderid customerid) VALUES ('" + flightid + "', '" + orderid + "')");
+        db.execute ("INSERT INTO Seats (flightid, customerid) VALUES ('" + flightid + "', '" + customerid + "')");
         ResultSet rs = db.execute("SELECT MAX(id) as 'max' FROM Seats");
         rs.next();
         key = rs.getInt("max");
@@ -45,7 +43,7 @@ public class Seat {
         return flightid;
     }
     
-    public int getOrderid() {
-        return orderid;
+    public int getCustomerid() {
+        return customerid;
     }    
 }
