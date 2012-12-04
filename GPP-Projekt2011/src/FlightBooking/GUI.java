@@ -6,6 +6,10 @@ import java.awt.event.*;
 import java.sql.SQLException;
 import javax.swing.*;
 import javax.swing.border.*;
+<<<<<<< HEAD
+=======
+import java.sql.*;
+>>>>>>> 27th commit
 
 
 /**
@@ -13,7 +17,7 @@ import javax.swing.border.*;
  * that takes care of representing the data to the user.
  * @author Mark
  */
-public class GUI{
+public class GUI {
     
     private JFrame frame;
     private JPanel contentPane;

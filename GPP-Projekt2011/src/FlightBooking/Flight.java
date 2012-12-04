@@ -8,7 +8,8 @@ import java.sql.*;
 
 
 /**
- *  
+ * This class handles the information involving flights to be submitted into
+ * the database.
  * @author Lollike
  */
 public class Flight {
@@ -23,7 +24,7 @@ public class Flight {
         Seat Seats[] = new Seat[ns];
     }
     
-    
+    // Initializes the ResultSet
     public void init(ResultSet rs) throws SQLException {
         key = rs.getInt("id");
         startdes = rs.getInt("startdestination");
@@ -37,22 +38,27 @@ public class Flight {
         init(rs);
     }
     
+    // Inserts the information in the fields into correspondong columns in db.
     public void insert(Database db) throws SQLException {
         db.execute("INSERT INTO Flights (startdestination, enddestination, date) VALUES ('" + startdes + "', '" + enddes + "', '" + date + "')");
     }
     
+    // Returns primary key.
     public int getKey() {
         return key;
     }
     
+    // Returns start destination ID.
     public int getStartDestination() {
         return startdes;
     }
     
+    // Returns end destination ID.
     public int getEndDestination() {
         return enddes;
     }
     
+    // Returns the date.
     public Date getDate() {
         return date;
     }

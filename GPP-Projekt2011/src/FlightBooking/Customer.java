@@ -3,13 +3,17 @@ package FlightBooking;
 import java.sql.*;
 
 /**
- *
+ * Contains the information about a customer to be submitted into the database.
  * @author Lollike
  */
 public class Customer {
-    private int key;
-    private String firstname, lastname, country, city, address, phonenumber, email;
+    private int key; // Primary id key in the database.
+    private String firstname, lastname, country, city, address, 
+            phonenumber, email; // Fields storing information to be stored in db.
     
+    /**
+     * Constructor that creates a customer object with the required info.
+     */
     public Customer(String f, String l, String c, String ci, String a, String p, String e) {
         key = 0;
         firstname = f;
@@ -21,6 +25,10 @@ public class Customer {
         email = e;
     }
     
+    /**
+     * Initializes the ResultSet, making the link between the fields of this class,
+     * and the columns in the database.
+     */
     public void init(ResultSet rs) throws SQLException {
         key = rs.getInt("id");
         firstname = rs.getString("firstname");
