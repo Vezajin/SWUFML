@@ -6,7 +6,6 @@ import java.awt.event.*;
 import java.sql.SQLException;
 import javax.swing.*;
 import javax.swing.border.*;
-import java.util.ArrayList;
 
 
 /**
@@ -102,23 +101,26 @@ public class GUI{
      */
     private void chooseDate() {
         JPanel dateInput = new JPanel(new GridLayout(0,1));
-
-        JTextField startYear = new JTextField("year");
-        JTextField startMonth = new JTextField("month");
-        JTextField startDay = new JTextField("day");
+        
+        JTextField startYear = new JTextField();
+        JTextField startMonth = new JTextField();
+        JTextField startDay = new JTextField();
 
         dateInput.add(new JLabel("Please select date of departure."));
+        dateInput.add(new JLabel("Year:"));
         dateInput.add(startYear);
+        dateInput.add(new JLabel("Month:"));
         dateInput.add(startMonth);
+        dateInput.add(new JLabel("Day:"));
         dateInput.add(startDay);
         
         JOptionPane inputDialog = new JOptionPane();
         int result = inputDialog.showConfirmDialog(frame, dateInput, "Search Option", inputDialog.OK_CANCEL_OPTION);
         
         if(result == inputDialog.YES_OPTION) {
-           if(isIntNumber(startYear.getText()) == false || (startMonth.getText()).length() != 4 ||
-              isIntNumber(startMonth.getText()) == false || (startMonth.getText()).length() > 2 ||
-              isIntNumber(startDay.getText()) == false ||(startMonth.getText()).length() > 2) {
+           if(isIntNumber(startYear.getText()) == false || (startYear.getText()).length() != 4  ||
+              isIntNumber(startMonth.getText()) == false || (startMonth.getText()).length() > 3 ||
+              isIntNumber(startDay.getText()) == false ||(startDay.getText()).length() > 3) {
               
                 JOptionPane errorDialog = new JOptionPane();
                 errorDialog.showMessageDialog(null, "Error! input was not a date!");
@@ -540,7 +542,7 @@ public class GUI{
             else if(selectedValue.equals("type3")){
                 destinations = new String[]{"val31", "val32", "val33"};
             }
-            //Hvorfor virker jeg?
+
             for(String val : destinations){
                 model.addElement(val);
             }
