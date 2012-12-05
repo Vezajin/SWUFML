@@ -345,7 +345,7 @@ public class GUI {
     
     
     /**
-     * SER UD TIL AT KUNNE BRUGES IGEN. MANGLER DOG SELVE EDIT/DELETE DELEN.
+     *
      */
     private void editReservation() {
         Object[] options = {"Edit Reservation", "Delete Reservation"};
@@ -367,7 +367,7 @@ public class GUI {
             if(isIntNumber(cusID.getText()) == true || isIntNumber(phoneNumber.getText()) == true) {
                 try {                    
                     Order order = new Order(database, Integer.parseInt(cusID.getText()));
-
+                    Flight flight = new Flight(database, order.getFlight());
                     //Delete Option
                     if(result == JOptionPane.NO_OPTION) {
                         //DELETE ORDER
@@ -375,7 +375,8 @@ public class GUI {
                     //Edit Option
                     if(result == JOptionPane.YES_OPTION) {
                         FlightSeat flightseat = new FlightSeat(gui, database, flightScanner);
-                                                               flightseat.chooseSeats(order.getFlight(), 40, 1, Integer.parseInt(cusID.getText())); 
+                                                               flightseat.chooseSeats(flight.getKey(), flight.getNumberOfSeats(),
+                                                                                      1, Integer.parseInt(cusID.getText())); 
                     }
                 }
                 catch (SQLException ex) {
