@@ -55,6 +55,11 @@ public class Customer {
         key = rs.getInt("max");
     }
     
+    // Deletes the entry with the specified primary key in the database.
+    public void delete(Database db, int k) throws SQLException {
+        db.execute("DELETE FROM Customer WHERE id = " + k);
+    }
+    
     public int getKey() {
         return key;
     }

@@ -43,6 +43,11 @@ public class Flight {
         db.execute("INSERT INTO Flights (startdestination, enddestination, date) VALUES ('" + startdes + "', '" + enddes + "', '" + date + "')");
     }
     
+    // Deletes the entry with the specified primary key in the database.
+    public void delete(Database db, int k) throws SQLException {
+        db.execute("DELETE FROM Flights WHERE id = " + k);
+    }
+    
     // Returns primary key.
     public int getKey() {
         return key;
