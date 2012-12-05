@@ -25,7 +25,7 @@ public class FlightSeat {
         this.database = database;
         this.flightScanner = flightScanner;
     }
-    public JDialog chooseSeats(int flightID, int numberOfSeats) {
+    public JDialog chooseSeats(int flightID, int numberOfSeats, int methodChecker, int customerID) {
         JDialog seatsDialog = new JDialog(gui.returnFrame());
         
         Container seatsContentPane = seatsDialog.getContentPane();
@@ -80,9 +80,9 @@ public class FlightSeat {
         
         ArrayList<String>bookedSeats = new ArrayList<String>(); 
         try {
-            ResultSet rs = database.execute("SELECT seatstring FROM Orders WHERE flightid = " + flightID);
-            while(rs.next()) {
-                bookedSeats = (flightScanner.seatAnalyser(rs.getString("seatstring")));
+            ResultSet rsSeats = database.execute("SELECT seatstring FROM Orders WHERE flightid = " + flightID);
+            while(rsSeats.next()) {
+                bookedSeats = (flightScanner.seatAnalyser(rsSeats.getString("seatstring")));
                 for(int k = 0; k<bookedSeats.size(); k++) {
                     for(int m = 0; m <button.length; m++) {
                         if((button[m].getText()).equals(bookedSeats.get(k))) {
@@ -91,24 +91,72 @@ public class FlightSeat {
                         }
                     }
                 }
+            }    
+            
+            //These fields are declared final at this point, so the ActionListener on the save button can access them.
+            final JButton[] buttonFinished = button;
+            final int chosenFlight = flightID;
+            final int seats = numberOfSeats;
+            final int finalMethodChecker = methodChecker;
+            final int finalCustomerID = customerID;
+       
+            middle.add(new JButton()).setEnabled(false);
+            JButton save = new JButton("Save");
+            south.add(save);
+            SaveActionListener SAC = new SaveActionListener(buttonFinished, chosenFlight, seats, finalMethodChecker, finalCustomerID);
+            save.addActionListener(SAC);
+            
+            if(methodChecker == 1 || customerID != 0) {
+                ArrayList<String>customersBookedSeats = new ArrayList<String>();
+                
+                ResultSet rsBookedSeats = database.execute("SELECT seatstring FROM Orders WHERE customerid = " + customerID);
+                if(rsBookedSeats.next()) {
+                customersBookedSeats = (flightScanner.seatAnalyser(rsBookedSeats.getString("seatstring")));
+                JButton[] chosenButtons = new JButton[customersBookedSeats.size()];
+                
+                for(int a = 0; a<customersBookedSeats.size(); a++) {
+                    for(int b = 0; b <button.length; b++) {
+                        if((button[b].getText()).equals(customersBookedSeats.get(a))) {
+                            button[b].setBackground(Color.BLUE);
+                            button[b].setEnabled(true);
+                            save.removeActionListener(SAC);
+                            chosenButtons[b] = button[b];
+                            /*save.addActionListener(new ActionListener() {
+                                                   public void actionPerformed(ActionEvent e) {  }
+                                                   });*/
+                        }
+                    }
+                }
+                
+                Object[] options = {"Add Additional Seat(s)", "Delete Seat(s)", "Move Current Seats"};
+                            JOptionPane optionDialog = new JOptionPane();
+                            int optionResult = JOptionPane.showOptionDialog(gui.returnFrame(),new JPanel(),"What do you wish to do?",
+                                                            JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE,
+                                                            null, options, options[0]);
+                            if(optionResult == JOptionPane.YES_OPTION) {
+                                for(int c = 0; c<chosenButtons.length; c++) {
+                                    chosenButtons[c].setEnabled(false);
+                                }
+                            }
+                            if(optionResult == JOptionPane.NO_OPTION) {
+                                for(int c = 0; c<button.length; c++) {
+                                    if(button[c].getBackground() == Color.GREEN) {
+                                        button[c].setEnabled(false);
+                                    }
+                                }  
+                            }
+                            if(optionResult == JOptionPane.CANCEL_OPTION) {
+                                
+                            }
+                            else {
+                                
+                            }
+                }
             }
         }
         catch (SQLException ex) {
             System.out.println("finding order exception : " + ex);
         }
-         
-       
-         //These fields are declared final at this point, so the ActionListener on the save button can access them.
-       final JButton[] buttonFinished = button;
-       final int chosenFlight = flightID;
-       final int seats = numberOfSeats;
-       
-       middle.add(new JButton()).setEnabled(false);
-       JButton save = new JButton("Save");
-       south.add(save);
-       save.addActionListener(new ActionListener() {
-                                public void actionPerformed(ActionEvent e) { saveChosenSeats(buttonFinished, chosenFlight, seats); }
-                              });
        
        seatsContentPane.add(left, BorderLayout.WEST); 
        seatsContentPane.add(middle, BorderLayout.CENTER);
@@ -123,7 +171,7 @@ public class FlightSeat {
     }
     
     
-    private void saveChosenSeats(JButton[] button, int flightID, int numberOfSeats) {
+    private void saveChosenSeats(JButton[] button, int flightID, int numberOfSeats, int methodChecker, int customerID) {
         int seats = 0;
         String nameOfSeats = new String();
         
@@ -140,7 +188,7 @@ public class FlightSeat {
                                                             + " do you wish to go back and select seats again?",
                                                             "No seats selected", errorDialog.OK_CANCEL_OPTION);
             if(errorResult == errorDialog.YES_OPTION) {
-                chooseSeats(flightID, numberOfSeats);
+                chooseSeats(flightID, numberOfSeats, methodChecker, customerID);
             }
         }
         //If you have chosen seats, you will be shown how many and which, whereafter it will continue til creating customers.
@@ -149,14 +197,15 @@ public class FlightSeat {
             int succesResult = succesDialog.showConfirmDialog(gui.returnFrame(),"You have chosen: " + seats + " seat(s). Name of chosen seat(s): "+ nameOfSeats,
                                                             "Confirm your choice", succesDialog.OK_CANCEL_OPTION);
             if(succesResult == succesDialog.YES_OPTION) {
-                createCustomer(seats, nameOfSeats);
+                gui.createCustomer(seats, nameOfSeats);
             }
             //If you're not happy with your choice or try to close the window, you're sent back to choosing seats.
             else {
-                chooseSeats(flightID, numberOfSeats);
+                chooseSeats(flightID, numberOfSeats, methodChecker, customerID);
             }
         }
     }
+    
     
     private class SeatsActionListener implements ActionListener {
          public void SeatsActionListener() {
@@ -174,6 +223,26 @@ public class FlightSeat {
                 }
             }
          }
+    }
+    
+    private class SaveActionListener implements ActionListener {
+        
+        private JButton[] buttonFinished;
+        private int chosenFlight;
+        private int seats;
+        private int finalMethodChecker;
+        private int finalCustomerID;
+        
+        public SaveActionListener(JButton[] buttonFinished, int chosenFlight, int seats, int finalMethodChecker, int finalCustomerID) {
+            this.buttonFinished = buttonFinished;
+            this.chosenFlight = chosenFlight;
+            this.seats = seats;
+            this.finalMethodChecker = finalMethodChecker;
+            this.finalCustomerID = finalCustomerID;
+        }
+        public void actionPerformed(ActionEvent e) {
+            saveChosenSeats(buttonFinished, chosenFlight, seats, finalMethodChecker, finalCustomerID);
+        }
     }
 }
 
