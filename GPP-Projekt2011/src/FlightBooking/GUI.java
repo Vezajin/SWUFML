@@ -23,6 +23,7 @@ public class GUI {
     private JComboBox startComboBox, endComboBox;
     private Database database;
     private FlightScanner flightScanner;
+    private GUI gui;
     
     
     public GUI() {
@@ -31,6 +32,7 @@ public class GUI {
         } catch (SQLException ex) {
             System.out.println("Initialisation exception: " + ex);
         }
+        gui = this;
         makeFrame();
         flightScanner = new FlightScanner();
     }
@@ -78,7 +80,8 @@ public class GUI {
         
         item = new JMenuItem("TEST");
             item.addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent e) { chooseSeats(10, 40); }
+                public void actionPerformed(ActionEvent e) { FlightSeat testFlight = new FlightSeat(gui, database, flightScanner);
+                                                             testFlight.chooseSeats(10, 40); }
             });
         menu.add(item);
         
@@ -251,13 +254,12 @@ public class GUI {
             i++;
         }
         
-        ArrayList<String> bookedSeats = new ArrayList<String>(); 
+        ArrayList<String>bookedSeats = new ArrayList<String>(); 
         try {
             ResultSet rs = database.execute("SELECT seatstring FROM Orders WHERE flightid = " + flightID);
             while(rs.next()) {
                 bookedSeats = (flightScanner.seatAnalyser(rs.getString("seatstring")));
                 for(int k = 0; k<bookedSeats.size(); k++) {
-                    System.out.println(bookedSeats.get(k));
                     for(int m = 0; m <button.length; m++) {
                         if((button[m].getText()).equals(bookedSeats.get(k))) {
                             button[m].setBackground(Color.RED);
@@ -383,7 +385,7 @@ public class GUI {
                         address.getText(), phoneNumber.getText(), email.getText());
                 seatsRemaining--;
                 //This string is used when saving the names of traveller(s) in the database.
-                String traveller = firstName.getText() + " " + lastName.getText() + " ";
+                String traveller = firstName.getText() + " " + lastName.getText() + ", ";
                 
                 //If there's only one, we proceed directly to making the order.
                 if(seatsRemaining == 0) {
@@ -454,7 +456,7 @@ public class GUI {
             
             //For each traveller, the traveller's name is added to the string from createCustomer.
             for(int k = 0; k<additionalCustomerNames.length; k++) {
-               travellerNames = travellerNames+(additionalCustomerNames[k].getText())+" ";
+               travellerNames = travellerNames+(additionalCustomerNames[k].getText())+", ";
             }
             makeOrder(travellerNames, customer, nameOfSeats);
         }
@@ -497,8 +499,6 @@ public class GUI {
         if(result == JOptionPane.YES_OPTION || result == JOptionPane.NO_OPTION) {
             if(isIntNumber(cusID.getText()) == true || isIntNumber(phoneNumber.getText()) == true) {
                 try {
-                    //ResultSet rs = database.execute("SELECT * FROM Customer WHERE id = " + cusID.getText() +
-                    //      " AND phonenumber = " + phoneNumber.getText());
                     Order order = new Order(database, Integer.parseInt(cusID.getText()));
                 } 
                 catch (SQLException ex) {
@@ -509,6 +509,9 @@ public class GUI {
         }
     }
     
+    public JFrame returnFrame() {
+        return frame;
+    }
     
     /**
      * Adds a picture to the contentpane.

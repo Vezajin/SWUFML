@@ -49,9 +49,10 @@ public class FlightScanner {
         Scanner scan = new Scanner(input);
         ArrayList<String> nameScan = new ArrayList<String>();        
             // Returns true if the String has a token. If false the String is empty.
-            while(scan.hasNext()==true) {               
+        scan.useDelimiter(",");    
+        while(scan.hasNext()==true) {               
                 // Returns true if the String has a token. If false the String is empty.                
-                nameScan.add(scan.next() + scan.next());                
+                nameScan.add(scan.next());               
             }
         return nameScan;
     } 
