@@ -316,7 +316,7 @@ public class GUI {
             for(int k = 0; k<additionalCustomerNames.length; k++) {
                 if(additionalCustomerNames[k].getText() == "Full name") {
                     JOptionPane errorDialog = new JOptionPane();
-                    errorDialog.showMessageDialog(null, "Error! all the inputs was not a name!");
+                    errorDialog.showMessageDialog(null, "Error! all the inputs were not names!");
                     createAdditionalCustomers(seatsRemaining, customer, travellerNames, nameOfSeats);
                 }
             }
@@ -365,18 +365,21 @@ public class GUI {
         //Checks if the input is valid
         if(result == JOptionPane.YES_OPTION || result == JOptionPane.NO_OPTION) {
             if(isIntNumber(cusID.getText()) == true || isIntNumber(phoneNumber.getText()) == true) {
-                try {
+                try {                    
                     Order order = new Order(database, Integer.parseInt(cusID.getText()));
-                } 
+
+                    //Delete Option
+                    if(result == JOptionPane.NO_OPTION) {
+                        //DELETE ORDER
+                    }
+                    //Edit Option
+                    if(result == JOptionPane.YES_OPTION) {
+                        FlightSeat flightseat = new FlightSeat(gui, database, flightScanner);
+                                                               flightseat.chooseSeats(order.getFlight(), 40, 1, Integer.parseInt(cusID.getText())); 
+                    }
+                }
                 catch (SQLException ex) {
                     System.out.println("finding order exception : " + ex);
-                }
-                
-                if(result == JOptionPane.NO_OPTION) {
-                    //DELETE ORDER
-                }
-                if(result == JOptionPane.YES_OPTION) {
-                    
                 }
             
             }
