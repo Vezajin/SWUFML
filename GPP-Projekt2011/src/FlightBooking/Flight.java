@@ -60,7 +60,10 @@ public class Flight {
     
     // Selects the flights from the database between two specified dates.
     public static void getDateFlights(Database db, String year1, String month1, String day1, String year2, String month2, String day2) throws SQLException {
-        ResultSet rs = db.execute("SELECT * FROM Flights WHERE date between " + year1 +"-"+ month1 +"-"+ day1 + " AND " + year2 +"-"+ month2 +"-"+ day2);
+        ResultSet rs = db.execute("SELECT * FROM Flights WHERE date between '" + year1 +"-"+ month1 +"-"+ day1 + "' AND '" + year2 +"-"+ month2 +"-"+ day2 +"'");
+        while(rs.next()) {
+            System.out.println("StartID: " + rs.getInt("startdestination") + " - EndID: " + rs.getInt("enddestination") + " - Date: " + rs.getDate("date"));
+        }
     }
     
     // Returns primary key.

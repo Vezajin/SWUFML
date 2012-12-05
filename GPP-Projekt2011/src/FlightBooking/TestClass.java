@@ -31,5 +31,10 @@ public class TestClass {
         Customer c = new Customer("Michael", "Johansson", "Sweden", "Stockholm", "Testvejen", "59473625", "en@mail.se");
         c.insert(db);
     }
+    
+    public void testCompareDates() throws SQLException {
+        Database db = new Database();
+        Flight.getDateFlights(db, "2013", "01", "09", "2013", "01", "14");
+    }
 }
 
