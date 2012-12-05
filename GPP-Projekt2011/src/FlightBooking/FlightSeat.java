@@ -318,8 +318,8 @@ public class FlightSeat {
             
             for(int k = 0; k<additionalTravellersNames.length; k++) {
                travellerNames = travellerNames+(additionalTravellersNames[k].getText())+", ";
-               database.execute("UPDATE Ordes WHERE customerid = " + customerID + " SET namestring = " + travellerNames + 
-                                " AND UPDATE Ordes WHERE customerid = " + customerID + " SET seatstring = " + nameOfSeats);
+               database.execute("UPDATE Orders WHERE customerid = " + customerID + " SET namestring = " + travellerNames + 
+                                " AND UPDATE Orders WHERE customerid = " + customerID + " SET seatstring = " + nameOfSeats);
             }
             
             } catch (SQLException ex) {
