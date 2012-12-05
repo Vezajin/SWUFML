@@ -16,13 +16,13 @@ public class Flight {
     private int key, startdes, enddes, numberofseats, bookedseats;
     private String timestamp;
     private Date date;
-    public Flight(int s, int e, Date d, int ns, int bs, String t) {
+    public Flight(int s, int e, Date d, int ns, String t) {
         key = 0;
+        bookedseats = 0;
         startdes = s;
         enddes = e;
         date = d;
         numberofseats = ns;
-        bookedseats = bs;
         timestamp = t;
     }
     
