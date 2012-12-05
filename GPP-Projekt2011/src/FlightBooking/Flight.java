@@ -13,15 +13,17 @@ import java.sql.*;
  * @author Lollike
  */
 public class Flight {
-    private int key, startdes, enddes, numberOfSeats;
+    private int key, startdes, enddes, numberofseats, bookedseats;
+    private String timestamp;
     private Date date;
-    public Flight(int s, int e, Date d, int ns) {
+    public Flight(int s, int e, Date d, int ns, int bs, String t) {
         key = 0;
         startdes = s;
         enddes = e;
         date = d;
-        
-        Seat Seats[] = new Seat[ns];
+        numberofseats = ns;
+        bookedseats = bs;
+        timestamp = t;
     }
     
     // Initializes the ResultSet
@@ -30,6 +32,9 @@ public class Flight {
         startdes = rs.getInt("startdestination");
         enddes = rs.getInt("enddestination");
         date = rs.getDate("date");
+        numberofseats = rs.getInt("numberofseats");
+        bookedseats = rs.getInt("bookedseats");
+        timestamp = rs.getString("timestamp");
     }
     
     public Flight(Database db, int k) throws SQLException {
@@ -76,5 +81,18 @@ public class Flight {
     // Returns the date.
     public Date getDate() {
         return date;
+    }
+    
+    public int getNumberOfSeats()
+    {
+        return numberofseats;
+    }
+    
+    public int getBookedSeats() {
+        return bookedseats;
+    }
+    
+    public String timestamp() {
+        return timestamp;
     }
 }
