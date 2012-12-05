@@ -13,10 +13,10 @@ import java.sql.*;
  * @author Lollike
  */
 public class Flight {
-    private int key, startdes, enddes, numberofseats, bookedseats;
-    private String timestamp;
+    private int key, numberofseats, bookedseats;
+    private String startdes, enddes, timestamp;
     private Date date;
-    public Flight(int s, int e, Date d, int ns, String t) {
+    public Flight(String s, String e, Date d, int ns, String t) {
         key = 0;
         bookedseats = 0;
         startdes = s;
@@ -29,8 +29,8 @@ public class Flight {
     // Initializes the ResultSet
     public void init(ResultSet rs) throws SQLException {
         key = rs.getInt("id");
-        startdes = rs.getInt("startdestination");
-        enddes = rs.getInt("enddestination");
+        startdes = rs.getString("startdestination");
+        enddes = rs.getString("enddestination");
         date = rs.getDate("date");
         numberofseats = rs.getInt("numberofseats");
         bookedseats = rs.getInt("bookedseats");
@@ -62,7 +62,7 @@ public class Flight {
     public static void getDateFlights(Database db, String year1, String month1, String day1, String year2, String month2, String day2) throws SQLException {
         ResultSet rs = db.execute("SELECT * FROM Flights WHERE date between '" + year1 +"-"+ month1 +"-"+ day1 + "' AND '" + year2 +"-"+ month2 +"-"+ day2 +"'");
         while(rs.next()) {
-            System.out.println("StartID: " + rs.getInt("startdestination") + " - EndID: " + rs.getInt("enddestination") + " - Date: " + rs.getDate("date"));
+            System.out.println("Start destination: " + rs.getString("startdestination") + " - End destination: " + rs.getString("enddestination") + " - Date: " + rs.getDate("date"));
         }
     }
     
@@ -72,12 +72,12 @@ public class Flight {
     }
     
     // Returns start destination ID.
-    public int getStartDestination() {
+    public String getStartDestination() {
         return startdes;
     }
     
     // Returns end destination ID.
-    public int getEndDestination() {
+    public String getEndDestination() {
         return enddes;
     }
     
