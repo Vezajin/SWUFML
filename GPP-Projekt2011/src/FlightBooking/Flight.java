@@ -55,7 +55,7 @@ public class Flight {
     
     // Selects the flights from the database for one specific date.
     public static void getSpecDateFlights(Database db, String year1, String month1, String day1) throws SQLException {
-        ResultSet rs = db.execute("SELECT * FROM Flights WHERE date = " + year1 +"-"+ month1 +"-"+ day1);
+        ResultSet rs = db.execute("SELECT * FROM Flights WHERE date = '" + year1 +"-"+ month1 +"-"+ day1 + "'");
     }
     
     // Selects the flights from the database between two specified dates.
