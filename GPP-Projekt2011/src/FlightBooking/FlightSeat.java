@@ -313,10 +313,13 @@ public class FlightSeat {
                 //For each traveller, the traveller's name is added to the string existing names string on the order.
                 Order order = new Order(database, customerID);
                 String travellerNames = order.getName();
+                String originalNameOfSeats = order.getSeat();
+                nameOfSeats = originalNameOfSeats + nameOfSeats;
             
             for(int k = 0; k<additionalTravellersNames.length; k++) {
                travellerNames = travellerNames+(additionalTravellersNames[k].getText())+", ";
-               database.execute("UPDATE Ordes WHERE customerid = " + customerID + " SET namestring = " + travellerNames);
+               database.execute("UPDATE Ordes WHERE customerid = " + customerID + " SET namestring = " + travellerNames + 
+                                " AND UPDATE Ordes WHERE customerid = " + customerID + " SET seatstring = " + nameOfSeats);
             }
             
             } catch (SQLException ex) {
