@@ -10,7 +10,7 @@ public class Run {
 
    
     public static void main(String[] args) throws SQLException {
-        new GUI();  
+        new GUI(); 
     }
 }
 
