@@ -164,15 +164,16 @@ public class FlightSeat {
                                         button[c].setEnabled(false);
                                     }
                                 }
-                                for(int d = 0; d<chosenButtons.length; d++) {
-                                    chosenButtons[d].setEnabled(true);
-                                    button[d].setToolTipText(customersBookedNames.get(d));
+                                for(int c = 0; c<chosenButtons.length; c++) {
+                                    chosenButtons[c].setEnabled(true);
+                                    button[c].setToolTipText(customersBookedNames.get(c));
                                 }
                                 DeleteSeatsActionListener DSAC = new DeleteSeatsActionListener();
                                 save.addActionListener(DSAC);
                                 makeDialog(seatsDialog);
                                 return seatsDialog;
                             }
+                            //If you want to move your seats.
                             if(optionResult == JOptionPane.CANCEL_OPTION) {
                                 MoveSeatsActionListener MSAC = new MoveSeatsActionListener();
                                 save.addActionListener(MSAC);
@@ -472,19 +473,44 @@ public class FlightSeat {
     
     
     private class MoveSeatsActionListener implements ActionListener {
-         public void MoveSeatsActionListener() {
-         }
-         
-         public void actionPerformed(ActionEvent e) {   
-            if(e.getSource() instanceof JButton) {
-             
-                if(((JButton)e.getSource()).getBackground() == Color.GREEN) {
-                    ((JButton) e.getSource()).setBackground(Color.BLUE);
+        private JButton[] buttonFinished;
+        private JButton[] finalChosenButtons;
+        private int chosenFlight;
+        private int seats;
+        private int finalMethodChecker;
+        private int finalCustomerID;
+        
+        public void MoveSeatsActionListener(JButton[] buttonFinished, JButton[] finalChosenButtons, int chosenFlight, int seats, int finalMethodChecker, 
+                                              int finalCustomerID) {
+            this.buttonFinished = buttonFinished;
+            this.finalChosenButtons = finalChosenButtons;
+            this.chosenFlight = chosenFlight;
+            this.seats = seats;
+            this.finalMethodChecker = finalMethodChecker;
+            this.finalCustomerID = finalCustomerID;
+        }
+        
+        String nameOfSeats = new String();
+        int howManySeatsChosen = 0;
+        
+        public void actionPerformed(ActionEvent e) {  
+            for(int i = 0; i<buttonFinished.length; i++) {
+                if(buttonFinished[i].getBackground() == Color.BLUE) {
+                     howManySeatsChosen++;
+                     nameOfSeats = nameOfSeats+((buttonFinished[i]).getText() + " ");
                 }
-             
-                else if(((JButton)e.getSource()).getBackground() == Color.BLUE) {
-                ((JButton)e.getSource()).setBackground(Color.GREEN);
+            }
+            if(howManySeatsChosen == finalChosenButtons.length) {
+                try {
+                    database.execute("UPDATE Orders WHERE customerid = " + finalCustomerID + " SET seatstring = " + nameOfSeats);
+                } catch (SQLException ex) {
+                    System.out.println("Error updating new seats, exception: " + ex);
                 }
+            }
+            else {
+                JOptionPane errorDialog = new JOptionPane();
+                errorDialog.showMessageDialog(null, "You chose the wrong amount of seats, please try again.");
+                 chooseSeats(chosenFlight, seats, finalMethodChecker, finalCustomerID);
             }
          }
     }
