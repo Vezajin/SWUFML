@@ -11,9 +11,8 @@ public class Run {
    
     public static void main(String[] args) throws SQLException {
         new GUI();
-        FlightSearch fs = new FlightSearch();
-        Database db = new Database();
-        fs.getNumberOfFlights(db, "2013", "01", "08", "2013", "01", "14");
+        TestClass ts = new TestClass();
+        ts.testArrayStuff();
     }
 }
 

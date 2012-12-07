@@ -32,9 +32,11 @@ public class TestClass {
         c.insert(db);
     }
     
-    public void testCompareDates() throws SQLException {
+    public void testArrayStuff() throws SQLException {
+        FlightSearch fs = new FlightSearch();
         Database db = new Database();
-        Flight.getDateFlights(db, "2013", "01", "09", "2013", "01", "14");
+        fs.getSpecDateFlights(db, "2013", "01", "09");
     }
+    
 }
 
