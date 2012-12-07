@@ -8,6 +8,8 @@ import javax.swing.*;
 import java.sql.*;
 import java.util.*;
 import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 
 
@@ -80,8 +82,7 @@ public class GUI {
         
         item = new JMenuItem("TEST");
             item.addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent e) { FlightSeat testFlight = new FlightSeat(gui, database, flightScanner);
-                                                             testFlight.chooseSeats(10, 40, 1, 5); }
+                public void actionPerformed(ActionEvent e) { chooseFlight("2013", "01", "09"); }
             });
         menu.add(item);
         
@@ -166,12 +167,26 @@ public class GUI {
      * handled by our inner class JComboBoxActionListener.
      */
     private void chooseFlight(String year, String month, String day) {
+        
+        FlightSearch flightsearcher = new FlightSearch();
+        ArrayList<Flight> flightsOnDate = new ArrayList<Flight>();
+        try {
+            flightsOnDate = (flightsearcher.getSpecDateFlights(database, year, month, day));
+            
+        } catch (SQLException ex) {
+            System.out.println("Error getting flights from server. Exception: " + ex);
+        }
+            //Creates a string array where the strings are startDes-endDes.
+            String[] route = new String[flightsOnDate.size()];
+            for(int i = 0; i <flightsOnDate.size(); i++) {
+                route[i] = flightsOnDate.get(i).getStartDestination()+"-"+flightsOnDate.get(i).getEndDestination();
+            }
         JPanel flightChoice = new JPanel(new GridLayout(0,1));
         
-        String[] Flights = {"Nothing Selected", "type1", "type2", "type3", "type4", "type5"};
-        startComboBox = new JComboBox(Flights);
+        flightChoice.add(new JLabel("Flights for the date: " +day+"-"+month+"-"+year));
+        startComboBox = new JComboBox(route);
               
-        flightChoice.add(new JLabel("From what airport?"));
+        flightChoice.add(new JLabel("Where do you wish to go?"));
         flightChoice.add(startComboBox);
         startComboBox.addActionListener(new JComboBoxActionListener(this));
         
@@ -370,7 +385,12 @@ public class GUI {
                     Flight flight = new Flight(database, order.getFlight());
                     //Delete Option
                     if(result == JOptionPane.NO_OPTION) {
-                        //DELETE ORDER
+                        JOptionPane confirmDialog = new JOptionPane();
+                        int confirmResult = confirmDialog.showConfirmDialog(gui.returnFrame(),"Are you sure you wish to delete your order?",
+                                                            "Confirm your choice.", confirmDialog.OK_CANCEL_OPTION);
+                        if(confirmResult == confirmDialog.YES_OPTION) {
+                            order.delete(database, order.getKey());
+                        }
                     }
                     //Edit Option
                     if(result == JOptionPane.YES_OPTION) {
@@ -441,12 +461,18 @@ public class GUI {
          
      }
         public void actionPerformed(ActionEvent e) {
+            ArrayList<String> flightsDes = new ArrayList<String>();
             String selectedValue = startComboBox.getSelectedItem().toString();
             String[] destinations = null;
 
             DefaultComboBoxModel model = (DefaultComboBoxModel) endComboBox.getModel();      
             model.removeAllElements();
-
+            
+            /*System.out.println(route[i]);
+                flightsDes = flightScanner.destinationAnalyser(route[i]);
+                for(int j = 0; j<flightsDes.size(); j++) {
+                    System.out.println(flightsDes.get(j));
+                }*/
             if(selectedValue.equals("type1")){
                 destinations = new String[]{"val11", "val12", "val13"};
             } 

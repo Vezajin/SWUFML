@@ -55,7 +55,19 @@ public class FlightScanner {
                 nameScan.add(scan.next());               
             }
         return nameScan;
-    } 
+    }
+    
+    public ArrayList<String> destinationAnalyser (String input) {
+        Scanner scan = new Scanner(input);
+        ArrayList<String> desScan = new ArrayList<String>();  
+            // Returns true if the String has a token. If false the String is empty.
+        scan.useDelimiter("-");    
+        while(scan.hasNext()==true) {               
+                // Returns true if the String has a token. If false the String is empty.                
+                desScan.add(scan.next());               
+            }
+        return desScan;
+    }
     /*Scanner scan = new Scanner("Nikolja Lollike Mark Klitgård Frederik "
                     + "Hoffmann Birgitte Hoffmann Johannes Døberen Snave Polle "
                     + "Bølle Bob Hans Hansen Peter Petersen");
