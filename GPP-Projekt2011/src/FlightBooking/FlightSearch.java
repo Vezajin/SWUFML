@@ -12,10 +12,9 @@ import java.util.ArrayList;
  * @author Lollike
  */
 public class FlightSearch {
-    Flight[] flightArray;
-    
+        
     public FlightSearch() {
-        flightArray = new Flight[9];
+        
     }
     
     // Selects the flights from the database for one specific date.
