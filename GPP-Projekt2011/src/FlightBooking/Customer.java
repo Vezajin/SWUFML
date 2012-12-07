@@ -6,7 +6,7 @@ import java.sql.*;
  * Contains the information about a customer to be submitted into the database.
  * @author Lollike
  */
-public class Customer {
+public class Customer implements DatabaseTable {
     private int key; // Primary id key in the database.
     private String firstname, lastname, country, city, address, 
             phonenumber, email; // Fields storing information to be stored in db.
@@ -29,6 +29,7 @@ public class Customer {
      * Initializes the ResultSet, making the link between the fields of this class,
      * and the columns in the database.
      */
+    @Override
     public void init(ResultSet rs) throws SQLException {
         key = rs.getInt("id");
         firstname = rs.getString("firstname");
@@ -46,6 +47,7 @@ public class Customer {
         init(rs);
     }
     
+    @Override
     public void insert(Database db) throws SQLException {
         db.execute ("INSERT INTO Customer (firstname, lastname, country, city, address, phonenumber, email) VALUES ('" +
             firstname + "', '" + lastname + "', '" + country + "', '" + city + "', '" + address + "', '" + phonenumber + 
@@ -56,6 +58,7 @@ public class Customer {
     }
     
     // Deletes the entry with the specified primary key in the database.
+    @Override
     public void delete(Database db, int k) throws SQLException {
         db.execute("DELETE FROM Customer WHERE id = " + k);
     }

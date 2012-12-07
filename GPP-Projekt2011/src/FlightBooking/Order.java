@@ -7,7 +7,7 @@ import java.sql.*;
  */
 
 
-    public class Order {
+    public class Order implements DatabaseTable {
         private int key, customer, flight; // Fields for corresponding schemas in the database for primary key, customerid and flightid.
         private String seat, name;
 
@@ -29,6 +29,7 @@ import java.sql.*;
  * Initializes the ResultSet, making the link between the fields of this class,
  * and the columns in the database.
  */    
+        @Override
     public void init(ResultSet rs) throws SQLException {
         key = rs.getInt("id");
         customer = rs.getInt("customerid");
@@ -50,6 +51,7 @@ import java.sql.*;
  * Inserts the data of the fields into the corresponding columns in the order
  * table of the database.
  */    
+        @Override
     public void insert(Database db) throws SQLException {
         db.execute("INSERT INTO Orders (customerid, flightid, seatstring, namestring) VALUES ('" 
                 + customer + "', '" + flight + "', '" + seat + "', '" + name + "')");
@@ -59,6 +61,7 @@ import java.sql.*;
     }
     
     // Deletes the entry with the specified primary key in the database.
+        @Override
     public void delete(Database db, int k) throws SQLException {
         db.execute("DELETE FROM Orders WHERE id = " + k);
     }

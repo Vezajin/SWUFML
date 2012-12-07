@@ -8,7 +8,7 @@ import java.sql.*;
  * the database.
  * @author Lollike
  */
-public class Flight {
+public class Flight implements DatabaseTable {
     private int key, numberofseats, bookedseats;
     private String startdes, enddes, timestamp;
     private Date date;
@@ -24,6 +24,7 @@ public class Flight {
     }
     
     // Initializes the ResultSet
+    @Override
     public void init(ResultSet rs) throws SQLException {
         key = rs.getInt("id");
         startdes = rs.getString("startdestination");
@@ -41,11 +42,13 @@ public class Flight {
     }
     
     // Inserts the information in the fields into correspondong columns in db.
+    @Override
     public void insert(Database db) throws SQLException {
         db.execute("INSERT INTO Flights (startdestination, enddestination, date, numberofseats, bookedseats, timestamp) VALUES ('" + startdes + "', '" + enddes + "', '" + date + "', '" + numberofseats + "', '" + bookedseats + "', '" + timestamp + "')");
     }
     
     // Deletes the entry with the specified primary key in the database.
+    @Override
     public void delete(Database db, int k) throws SQLException {
         db.execute("DELETE FROM Flights WHERE id = " + k);
     }
@@ -87,7 +90,7 @@ public class Flight {
     
     public static void insertManyFlights(String s, String e, int y, int m, int sd, int ed, String t, int ns) throws SQLException {
         Database db = new Database();
-        for(int i = sd; i < ed; i=i+2) {
+        for(int i = sd; i < ed; i++) {
             Date d = new NewDate(y, m, i).getDate();
             Flight f = new Flight(s, e, d, ns, t);
             f.insert(db);
