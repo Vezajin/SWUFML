@@ -37,6 +37,5 @@ public class TestClass {
         Database db = new Database();
         fs.getSpecDateFlights(db, "2013", "01", "09");
     }
-    
 }
 

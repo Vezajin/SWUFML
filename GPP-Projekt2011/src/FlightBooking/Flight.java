@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package FlightBooking;
 
 import java.sql.*;
@@ -16,6 +12,7 @@ public class Flight {
     private int key, numberofseats, bookedseats;
     private String startdes, enddes, timestamp;
     private Date date;
+    
     public Flight(String s, String e, Date d, int ns, String t) {
         key = 0;
         bookedseats = 0;
@@ -45,7 +42,7 @@ public class Flight {
     
     // Inserts the information in the fields into correspondong columns in db.
     public void insert(Database db) throws SQLException {
-        db.execute("INSERT INTO Flights (startdestination, enddestination, date) VALUES ('" + startdes + "', '" + enddes + "', '" + date + "')");
+        db.execute("INSERT INTO Flights (startdestination, enddestination, date, numberofseats, bookedseats, timestamp) VALUES ('" + startdes + "', '" + enddes + "', '" + date + "', '" + numberofseats + "', '" + bookedseats + "', '" + timestamp + "')");
     }
     
     // Deletes the entry with the specified primary key in the database.
@@ -87,4 +84,15 @@ public class Flight {
     public String timestamp() {
         return timestamp;
     }
+    
+    public static void insertManyFlights(String s, String e, int y, int m, int sd, int ed, String t, int ns) throws SQLException {
+        Database db = new Database();
+        for(int i = sd; i < ed; i=i+2) {
+            Date d = new NewDate(y, m, i).getDate();
+            Flight f = new Flight(s, e, d, ns, t);
+            f.insert(db);
+        }
+        db.close();
+    }    
 }
+
