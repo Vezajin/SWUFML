@@ -7,9 +7,9 @@ import java.sql.*;
  */
 
 
-public class Order {
-    private int key, customer, flight; // Fields for corresponding schemas in the database for primary key, customerid and flightid.
-    private String seat, name;
+    public class Order {
+        private int key, customer, flight; // Fields for corresponding schemas in the database for primary key, customerid and flightid.
+        private String seat, name;
 
     
 /**
@@ -81,5 +81,10 @@ public class Order {
     // Returns the string of names of the travelers.
     public String getName() {
         return name;
+    }
+    
+    // Returns the primary key.
+    public int getKey() {
+        return key;
     }
 }

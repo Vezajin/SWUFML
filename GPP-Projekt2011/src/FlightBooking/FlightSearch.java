@@ -26,6 +26,10 @@ public class FlightSearch {
             Flight f = new Flight(rs.getString("startdestination"), rs.getString("enddestination"), rs.getDate("date"), rs.getInt("numberofseats"), rs.getString("timestamp"));
             resultArray.add(f);
         }
+        int arraySize = resultArray.size();
+        for(int i = 0; i < arraySize; i++) {
+            System.out.println("Entry number "+ i);
+            }
         return resultArray;
     }
     
