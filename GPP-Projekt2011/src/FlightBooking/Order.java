@@ -67,7 +67,7 @@ import java.sql.*;
     }
     
     // Returns customer id.
-    public int getCostumer() {
+    public int getCustomer() {
         return customer;
     }
     

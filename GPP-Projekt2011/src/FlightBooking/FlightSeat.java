@@ -27,7 +27,7 @@ public class FlightSeat {
         this.database = database;
         this.flightScanner = flightScanner;
     }
-    public JDialog chooseSeats(int flightID, int numberOfSeats, int methodChecker, int customerID) {
+    public JDialog chooseSeats(int flightID, int numberOfSeats, String flight, int methodChecker, int customerID) {
         JDialog seatsDialog = new JDialog(gui.returnFrame());
         
         Container seatsContentPane = seatsDialog.getContentPane();
@@ -105,9 +105,10 @@ public class FlightSeat {
             middle.add(new JButton()).setEnabled(false);
             JButton save = new JButton("Save");
             south.add(save);
-            SaveActionListener SAC = new SaveActionListener(buttonFinished, chosenFlight, seats, finalMethodChecker, finalCustomerID);
+            SaveActionListener SAC = new SaveActionListener(buttonFinished, chosenFlight, seats, flight, finalMethodChecker, finalCustomerID);
             save.addActionListener(SAC);
             
+            seatsContentPane.add(new JLabel(flight), BorderLayout.NORTH);
             seatsContentPane.add(left, BorderLayout.WEST); 
             seatsContentPane.add(middle, BorderLayout.CENTER);
             seatsContentPane.add(right, BorderLayout.EAST);
@@ -152,7 +153,8 @@ public class FlightSeat {
                                     
                                 }
                                 // Adds new AL to the save button. when pressed it will now call saveAdditionalSeats.
-                                AddSeatsActionListener ASAC = new AddSeatsActionListener();
+                                AddSeatsActionListener ASAC = new AddSeatsActionListener(database, gui, this, buttonFinished, chosenFlight, 
+                                                                                            seats, flight, finalMethodChecker, finalCustomerID);
                                 save.addActionListener(ASAC);
                                 makeDialog(seatsDialog);
                                 return seatsDialog;
@@ -168,14 +170,16 @@ public class FlightSeat {
                                     chosenButtons[c].setEnabled(true);
                                     button[c].setToolTipText(customersBookedNames.get(c));
                                 }
-                                DeleteSeatsActionListener DSAC = new DeleteSeatsActionListener();
+                                DeleteSeatsActionListener DSAC = new DeleteSeatsActionListener(finalChosenSeats, chosenFlight, seats, flight, 
+                                                                                                finalMethodChecker, finalCustomerID, customersBookedSeats);
                                 save.addActionListener(DSAC);
                                 makeDialog(seatsDialog);
                                 return seatsDialog;
                             }
                             //If you want to move your seats.
                             if(optionResult == JOptionPane.CANCEL_OPTION) {
-                                MoveSeatsActionListener MSAC = new MoveSeatsActionListener();
+                                MoveSeatsActionListener MSAC = new MoveSeatsActionListener(buttonFinished, finalChosenSeats, 
+                                                                        chosenFlight, seats, flight, finalMethodChecker, finalCustomerID);
                                 save.addActionListener(MSAC);
                                 makeDialog(seatsDialog);
                                 return seatsDialog;
@@ -208,7 +212,7 @@ public class FlightSeat {
     }
     
     
-    private void saveChosenSeats(JButton[] button, int flightID, int numberOfSeats, int methodChecker, int customerID) {
+    private void saveChosenSeats(JButton[] button, int flightID, int numberOfSeats, String flight, int methodChecker, int customerID) {
         int seats = 0;
         String nameOfSeats = new String();
         
@@ -225,7 +229,7 @@ public class FlightSeat {
                                                             + " do you wish to go back and select seats again?",
                                                             "No seats selected", errorDialog.OK_CANCEL_OPTION);
             if(errorResult == errorDialog.YES_OPTION) {
-                chooseSeats(flightID, numberOfSeats, methodChecker, customerID);
+                chooseSeats(flightID, numberOfSeats, flight, methodChecker, customerID);
             }
         }
         //If you have chosen seats, you will be shown how many and which, whereafter it will continue til creating customers.
@@ -234,119 +238,16 @@ public class FlightSeat {
             int succesResult = succesDialog.showConfirmDialog(gui.returnFrame(),"You have chosen: " + seats + " seat(s). Name of chosen seat(s): "+ nameOfSeats,
                                                             "Confirm your choice", succesDialog.OK_CANCEL_OPTION);
             if(succesResult == succesDialog.YES_OPTION) {
-                gui.createCustomer(seats, nameOfSeats);
+                gui.createCustomer(seats, nameOfSeats, flightID, flight);
             }
             //If you're not happy with your choice or try to close the window, you're sent back to choosing seats.
             else {
-                chooseSeats(flightID, numberOfSeats, methodChecker, customerID);
+                chooseSeats(flightID, numberOfSeats, flight, methodChecker, customerID);
             }
         }
     }
     
-    
-    
-    /*
-     * This method is used when editing an order, where you wish to add one or more seats to an existing order.
-     */
-    private void saveAdditionalSeats(JButton[] button, int flightID, int numberOfSeats, int methodChecker, int customerID) {
-        int seats = 0;
-        String nameOfSeats = new String();
-        
-        for(int i = 0; i<button.length; i++) {
-            //Checks if the button is clicked and also if it wasnt booked to this order already.
-            if(button[i].getBackground() == Color.BLUE && button[i].isEnabled() == true) {
-            nameOfSeats = nameOfSeats+((button[i]).getText() + " ");
-            seats++;
-            }
-        }
-        //If you havent chosen any seats, you're asked to go back, otherwise it will end the process.
-        if(seats == 0) {
-            JOptionPane errorDialog = new JOptionPane();
-            int errorResult = errorDialog.showConfirmDialog(gui.returnFrame(),"You did not choose any seats,"
-                                                            + " do you wish to go back and select seats again?",
-                                                            "No seats selected", errorDialog.OK_CANCEL_OPTION);
-            if(errorResult == errorDialog.YES_OPTION) {
-            chooseSeats(flightID, numberOfSeats, methodChecker, customerID);
-            }
-        }
-        //If you have chosen seats, you will be shown how many and which, whereafter it will continue to adding addtional travellers.
-        else if(seats > 0) {
-            JOptionPane succesDialog = new JOptionPane();
-            int succesResult = succesDialog.showConfirmDialog(gui.returnFrame(),"You have chosen: " + seats + " seat(s). Name of chosen seat(s): "+ nameOfSeats,
-                                                            "Confirm your choice", succesDialog.OK_CANCEL_OPTION);
-            if(succesResult == succesDialog.YES_OPTION) {
-                addAdditionalTravellers(seats, nameOfSeats, customerID);
-            }
-            //If you're not happy with your choice or try to close the window, you're sent back to choosing seats.
-            else {
-                chooseSeats(flightID, numberOfSeats, methodChecker, customerID);
-            }
-        }
-    }
-    
-    /*
-     * This method is used for adding the names of the extra traveller(s) to the existing namestring in the db. Also the seatstring is updated here.
-     */
-    private void addAdditionalTravellers(int seats, String nameOfSeats, int customerID) {
-          
-        JPanel cusInputWest = new JPanel(new GridLayout(0,1));
-        JPanel cusInputEast = new JPanel(new GridLayout(0,1));
-        
-        //Creates as many textfields as there are remaining seats.
-        JTextField[] additionalTravellersNames = new JTextField[seats];
-        for(int j = 0; j<seats; j++) {
-            
-            JTextField name = new JTextField("Full name");
-            additionalTravellersNames[j] = name;
-            
-            //Adds the textfields to two rows.
-            if(j%2 == 0) {
-            cusInputWest.add(new JLabel("Traveller" + (j+1)+":"));
-            cusInputWest.add(name);
-            }
-            else {
-                cusInputEast.add(new JLabel("Traveller" + (j+1)+":"));
-                cusInputEast.add(name);
-            }
- 
-        }
-        JPanel cusInput = new JPanel(new GridLayout(0,3));
-        cusInput.add(cusInputWest);
-        cusInput.add(new JPanel());
-        cusInput.add(cusInputEast);
-        
-        JOptionPane inputDialog = new JOptionPane();
-        int cusResult = inputDialog.showConfirmDialog(gui.returnFrame(), cusInput, "Additional Travellers Names", inputDialog.OK_CANCEL_OPTION);
-        if(cusResult == inputDialog.YES_OPTION) {
-            
-            for(int k = 0; k<additionalTravellersNames.length; k++) {
-                if(additionalTravellersNames[k].getText() == "Full name") {
-                    JOptionPane errorDialog = new JOptionPane();
-                    errorDialog.showMessageDialog(null, "Error! all the inputs were not names!");
-                    addAdditionalTravellers(seats, nameOfSeats, customerID);
-                }
-            }
-            try {
-                //For each traveller, the traveller's name is added to the string existing names string on the order.
-                Order order = new Order(database, customerID);
-                String travellerNames = order.getName();
-                
-                String originalNameOfSeats = order.getSeat();
-                nameOfSeats = originalNameOfSeats + nameOfSeats;
-            
-            for(int k = 0; k<additionalTravellersNames.length; k++) {
-               travellerNames = travellerNames+(additionalTravellersNames[k].getText())+", ";
-               
-               database.execute("UPDATE Orders WHERE customerid = " + customerID + " SET namestring = " + travellerNames + 
-                                " AND UPDATE Orders WHERE customerid = " + customerID + " SET seatstring = " + nameOfSeats);
-            }
-            
-            } catch (SQLException ex) {
-                System.out.println("An error occured! Exception: " + ex);
-            }
-        }
-    }
-        
+   
     /*
      * Changes the color of the clicked button to green if its already blue or the other way around.
      */
@@ -378,44 +279,22 @@ public class FlightSeat {
         private int seats;
         private int finalMethodChecker;
         private int finalCustomerID;
+        private String flight;
         
-        public SaveActionListener(JButton[] buttonFinished, int chosenFlight, int seats, int finalMethodChecker, int finalCustomerID) {
+        public SaveActionListener(JButton[] buttonFinished, int chosenFlight, int seats, String flight, int finalMethodChecker, int finalCustomerID) {
             this.buttonFinished = buttonFinished;
             this.chosenFlight = chosenFlight;
             this.seats = seats;
             this.finalMethodChecker = finalMethodChecker;
             this.finalCustomerID = finalCustomerID;
+            this.flight = flight;
         }
         public void actionPerformed(ActionEvent e) {
-            saveChosenSeats(buttonFinished, chosenFlight, seats, finalMethodChecker, finalCustomerID);
+            saveChosenSeats(buttonFinished, chosenFlight, seats, flight, finalMethodChecker, finalCustomerID);
         }
     }
     
-    /*
-     * Is used in overriding the original AC on the save button.
-     */
-    private class AddSeatsActionListener implements ActionListener {
-         
-        private JButton[] buttonFinished;
-        private int chosenFlight;
-        private int seats;
-        private int finalMethodChecker;
-        private int finalCustomerID;
-        
-        public void AddSeatsActionListener(JButton[] buttonFinished, int chosenFlight, int seats, int finalMethodChecker, int finalCustomerID) {
-            this.buttonFinished = buttonFinished;
-            this.chosenFlight = chosenFlight;
-            this.seats = seats;
-            this.finalMethodChecker = finalMethodChecker;
-            this.finalCustomerID = finalCustomerID; 
-        }
-         
-         public void actionPerformed(ActionEvent e) {   
-             saveAdditionalSeats(buttonFinished, chosenFlight, seats, finalMethodChecker, finalCustomerID);
-         }
-    }
-    
-    
+     
     private class DeleteSeatsActionListener implements ActionListener {
         private JButton[] finalChosenButtons;
         private int chosenFlight;
@@ -423,8 +302,9 @@ public class FlightSeat {
         private int finalMethodChecker;
         private int finalCustomerID;
         private ArrayList<String> customerSeatsAL;
+        private String flight;
         
-        public void DeleteSeatsActionListener(JButton[] finalChosenButtons, int chosenFlight, int seats, int finalMethodChecker, 
+        public DeleteSeatsActionListener(JButton[] finalChosenButtons, int chosenFlight, int seats, String flight, int finalMethodChecker, 
                                               int finalCustomerID, ArrayList<String> customerSeatsAL) {
             
             this.finalChosenButtons = finalChosenButtons;
@@ -433,6 +313,7 @@ public class FlightSeat {
             this.finalMethodChecker = finalMethodChecker;
             this.finalCustomerID = finalCustomerID;
             this.customerSeatsAL = customerSeatsAL;
+            this.flight = flight;
          }
          
          public void actionPerformed(ActionEvent e) {   
@@ -458,7 +339,7 @@ public class FlightSeat {
             if(remainingSeats == customerSeatsAL.size()) {
                 JOptionPane errorDialog = new JOptionPane();
                 errorDialog.showMessageDialog(null, "You did not delete any seats, please try again");
-                 chooseSeats(chosenFlight, seats, finalMethodChecker, finalCustomerID);
+                 chooseSeats(chosenFlight, seats, flight, finalMethodChecker, finalCustomerID);
             }
             else {
                  try {
@@ -479,8 +360,9 @@ public class FlightSeat {
         private int seats;
         private int finalMethodChecker;
         private int finalCustomerID;
+        private String flight;
         
-        public void MoveSeatsActionListener(JButton[] buttonFinished, JButton[] finalChosenButtons, int chosenFlight, int seats, int finalMethodChecker, 
+        public MoveSeatsActionListener(JButton[] buttonFinished, JButton[] finalChosenButtons, int chosenFlight, int seats, String flight, int finalMethodChecker, 
                                               int finalCustomerID) {
             this.buttonFinished = buttonFinished;
             this.finalChosenButtons = finalChosenButtons;
@@ -488,6 +370,7 @@ public class FlightSeat {
             this.seats = seats;
             this.finalMethodChecker = finalMethodChecker;
             this.finalCustomerID = finalCustomerID;
+            this.flight = flight;
         }
         
         String nameOfSeats = new String();
@@ -510,7 +393,7 @@ public class FlightSeat {
             else {
                 JOptionPane errorDialog = new JOptionPane();
                 errorDialog.showMessageDialog(null, "You chose the wrong amount of seats, please try again.");
-                 chooseSeats(chosenFlight, seats, finalMethodChecker, finalCustomerID);
+                 chooseSeats(chosenFlight, seats, flight, finalMethodChecker, finalCustomerID);
             }
          }
     }

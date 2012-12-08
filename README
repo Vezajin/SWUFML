@@ -1,9 +1,3 @@
-Hello. I'm the README file.
+THE README.
 
-0.1 Added potentially usable GUI code. - Mark
-
-0.12 Fixed GUI to be fully prepped for FlightBooking. - Mark
-
-0.2 Database connection established and objects for classes in the DB can be created in their respective classes. - Mark & Lollike
-
-0.21 Added method in Date for getting the correct month when the month is typed in as an int. - Mark
+53rd git commit: Program version 1.0 complete.

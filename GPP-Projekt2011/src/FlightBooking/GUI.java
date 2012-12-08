@@ -22,7 +22,9 @@ public class GUI {
     
     private JFrame frame;
     private JPanel contentPane;
-    private JComboBox startComboBox, endComboBox;
+    private BorderLayout layout;
+    private JComboBox routeComboBox, timeComboBox, remainingSeatsComboBox;
+    private JLabel remainingSeatsLabel;
     private Database database;
     private FlightScanner flightScanner;
     private GUI gui;
@@ -47,7 +49,8 @@ public class GUI {
         frame = new JFrame("Flight Booking");       
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         contentPane = (JPanel)frame.getContentPane();
-        contentPane.setLayout(new BorderLayout());
+        layout = new BorderLayout();
+        contentPane.setLayout(layout);
         
         makeMenuBar(frame);
         pictureContent();
@@ -122,42 +125,16 @@ public class GUI {
         dateInput.add(startMonth);
         dateInput.add(new JLabel("Day:"));
         dateInput.add(startDay);
+        JButton ConfirmDate = new JButton("Search for flights");
+        dateInput.add(ConfirmDate);
+        ConfirmDate.addActionListener(new ConfirmDateActionListener(startYear, startMonth, startDay));
         
-        JOptionPane inputDialog = new JOptionPane();
-        int result = inputDialog.showConfirmDialog(frame, dateInput, "Search Option", inputDialog.OK_CANCEL_OPTION);
+        contentPane.removeAll();
+        contentPane.add(dateInput, layout.WEST);
         
-        if(result == inputDialog.YES_OPTION) {
-           if(isIntNumber(startYear.getText()) == false || (startYear.getText()).length() != 4  ||
-              isIntNumber(startMonth.getText()) == false || (startMonth.getText()).length() > 3 ||
-              isIntNumber(startDay.getText()) == false ||(startDay.getText()).length() > 3) {
-              
-                JOptionPane errorDialog = new JOptionPane();
-                errorDialog.showMessageDialog(null, "Error! input was not a date!");
-                chooseDate();
-           }
-           else { 
-               //turns the input into integers after we've checked if they are indeed integers.
-               String startMonthTemp = new String(startMonth.getText());
-               String startDayTemp = new String(startDay.getText());
-               int year = Integer.parseInt(startYear.getText());
-               int month = Integer.parseInt(startMonth.getText());
-               int day = Integer.parseInt(startDay.getText());
-               
-               //A check for whenever the month and day inputs are written in, for instance, 02 or 2. 
-               //If the first is the case, it's changed to 2.
-               if((startMonth.getText()).contains("0") == true) {
-                   startMonthTemp.substring((startMonth.getText()).length()-1);
-                   month = Integer.parseInt(startMonthTemp);
-               }
-               if((startDay.getText()).contains("0") == true) {
-                   startDayTemp.substring((startDay.getText()).length()-1);
-                   day = Integer.parseInt(startDayTemp);
-               }
-               NewDate date = new NewDate(year, month, day);
-               chooseFlight(startYear.getText(), startMonth.getText(), startDay.getText()); 
-          }
-    
-       }
+        frame.pack();
+        frame.setSize(500, 300);
+        frame.setResizable(false);
     }
     
     
@@ -167,50 +144,94 @@ public class GUI {
      * handled by our inner class JComboBoxActionListener.
      */
     private void chooseFlight(String year, String month, String day) {
+        if(layout.getLayoutComponent(BorderLayout.EAST) != null) {
+            contentPane.remove(layout.getLayoutComponent(BorderLayout.EAST));
+        }
         
         FlightSearch flightsearcher = new FlightSearch();
-        ArrayList<Flight> flightsOnDate = new ArrayList<Flight>();
+        ArrayList<Flight> allFlightsOnDate = new ArrayList<Flight>();
         try {
-            flightsOnDate = (flightsearcher.getSpecDateFlights(database, year, month, day));
+            allFlightsOnDate = (flightsearcher.getSpecDateFlights(database, year, month, day));
             
         } catch (SQLException ex) {
             System.out.println("Error getting flights from server. Exception: " + ex);
         }
-            //Creates a string array where the strings are startDes-endDes.
-            String[] route = new String[flightsOnDate.size()];
-            for(int i = 0; i <flightsOnDate.size(); i++) {
-                route[i] = flightsOnDate.get(i).getStartDestination()+"-"+flightsOnDate.get(i).getEndDestination();
-            }
+        ArrayList<Flight> flightsOnDate = new ArrayList<Flight>();
+        //Here we make sure we only have the same route once.
+        for(int i = 0; i<allFlightsOnDate.size(); i++) {
+            flightsOnDate.add(allFlightsOnDate.get(i));
+                for(int j = 0; j<flightsOnDate.size(); j++) {
+                    // everytime j == i, it will be checking on itself, which would be stupid.
+                    if(j != i) {
+                        if(((flightsOnDate.get(i)).getStartDestination()).equals((allFlightsOnDate.get(j)).getStartDestination()) &&
+                            ((flightsOnDate.get(i)).getEndDestination()).equals((allFlightsOnDate.get(j)).getEndDestination())) {
+                            flightsOnDate.remove(i);
+                        }
+                    }
+                }
+        }
+        flightsOnDate.trimToSize();
+        //Creates a string array where the strings are startDes-endDes.
+        String[] route = new String[flightsOnDate.size()+1];
+        route[0] = "Nothing Selected";
+        for(int i = 0; i <flightsOnDate.size(); i++) {
+            route[i+1] = flightsOnDate.get(i).getStartDestination()+"-"+flightsOnDate.get(i).getEndDestination();
+        }
         JPanel flightChoice = new JPanel(new GridLayout(0,1));
         
         flightChoice.add(new JLabel("Flights for the date: " +day+"-"+month+"-"+year));
-        startComboBox = new JComboBox(route);
+        routeComboBox = new JComboBox(route);
               
         flightChoice.add(new JLabel("Where do you wish to go?"));
-        flightChoice.add(startComboBox);
-        startComboBox.addActionListener(new JComboBoxActionListener(this));
+        flightChoice.add(routeComboBox);
+        routeComboBox.addActionListener(new JComboBoxFlightActionListener(flightsOnDate));
         
-        String[] destinations = {"Nothing Selected"};
-        endComboBox = new JComboBox(destinations);
-              
-        flightChoice.add(new JLabel("Where to?"));
-        flightChoice.add(endComboBox);
+        String[] noTimestamp = {"Nothing Selected"};
+        timeComboBox = new JComboBox(noTimestamp);
+          
+        flightChoice.add(new JLabel("What time of the day?"));
+        flightChoice.add(timeComboBox);
         
-        JOptionPane inputDialog = new JOptionPane();
+        String[] noSeats = {"Nothing Selected"};
+        remainingSeatsLabel = new JLabel("No Flight Selected.");
+        flightChoice.add(remainingSeatsLabel);
+        
+        JButton confirmFlight = new JButton("Confirm chosen flight");
+        flightChoice.add(confirmFlight);
+        confirmFlight.addActionListener(new ConfirmFlightActionListener(year,month,day,flightsOnDate));
+                
+        contentPane.add(flightChoice, layout.EAST);
+        
+        frame.pack();
+        frame.setSize(500, 300);
+        frame.setResizable(false);
+        /*JOptionPane inputDialog = new JOptionPane();
         int result = inputDialog.showConfirmDialog(frame, flightChoice, "Search Options", inputDialog.OK_CANCEL_OPTION);
         if(result == inputDialog.YES_OPTION) {
-            if(startComboBox.getSelectedItem() == "Nothing Selected") {
+            if(routeComboBox.getSelectedItem() == "Nothing Selected") {
               
                 JOptionPane errorDialog = new JOptionPane();
                 errorDialog.showMessageDialog(null, "Error! Please choose a flight!");
                 chooseFlight(year, month, day);
             }
             else {
-                //Send den valgtes flightID til chooseSeats.
-                FlightSeat flightseat = new FlightSeat(gui, database, flightScanner);
-                flightseat.chooseSeats(10, 40, 0, 0);
+                ArrayList<String> flightsDes = new ArrayList<String>();
+                String selectedRoute = routeComboBox.getSelectedItem().toString();
+                String selectedTime = timeComboBox.getSelectedItem().toString();
+                ArrayList<String> timestamps = new ArrayList<String>();
+            
+                flightsDes = flightScanner.destinationAnalyser(selectedRoute);
+                for(int i = 0; i<flightsOnDate.size();i++) {
+                    if(flightsDes.get(0).equals((flightsOnDate.get(i)).getStartDestination()) && 
+                       flightsDes.get(1).equals((flightsOnDate.get(i)).getEndDestination()) &&
+                       selectedTime.equals((flightsOnDate.get(i)).timestamp())) {
+                       
+                        FlightSeat flightseat = new FlightSeat(gui, database, flightScanner);
+                        flightseat.chooseSeats(flightsOnDate.get(i).getKey(), flightsOnDate.get(i).getNumberOfSeats(), 0, 0);
+                    }
+                }
             }
-        }
+        }*/
     }
     
     
@@ -218,7 +239,7 @@ public class GUI {
     /*
      * You create the traveller responsible for the tickets.
      */
-    public void createCustomer(int numberOfSeats, String nameOfSeats) {    
+    public void createCustomer(int numberOfSeats, String nameOfSeats, int flightID, String flight) {    
         
         int seatsRemaining = numberOfSeats;
         JTextField firstName = new JTextField();
@@ -258,7 +279,7 @@ public class GUI {
                 
                 JOptionPane errorDialog = new JOptionPane();
                     errorDialog.showMessageDialog(frame, "Error! input was incorrect, try again.");
-                    createCustomer(seatsRemaining, nameOfSeats);
+                    createCustomer(seatsRemaining, nameOfSeats, flightID, flight);
             }
             
             //If correct input, we proceed to creating additional customers if there's more than one customer.
@@ -271,11 +292,11 @@ public class GUI {
                 
                 //If there's only one, we proceed directly to making the order.
                 if(seatsRemaining == 0) {
-                    makeOrder(traveller, customer, nameOfSeats); 
+                    makeOrder(traveller, customer, nameOfSeats, numberOfSeats, flightID, flight); 
                 }
                 //If there's more than one traveller, the remaining will be created in the next step.
                 else{
-                  createAdditionalCustomers(seatsRemaining, customer, traveller, nameOfSeats);
+                  createAdditionalCustomers(seatsRemaining, numberOfSeats, customer, traveller, nameOfSeats, flightID, flight);
                 }
             }            
         }
@@ -286,7 +307,7 @@ public class GUI {
             int cancelResult = cancelDialog.showConfirmDialog(frame,"Are you sure you wish to quit?",
                                                               "Customer Information", inputDialog.OK_CANCEL_OPTION);
             if(cancelResult == cancelDialog.NO_OPTION) {
-                createCustomer(numberOfSeats, nameOfSeats);
+                createCustomer(numberOfSeats, nameOfSeats, flightID, flight);
             }
         }
     }
@@ -297,7 +318,7 @@ public class GUI {
      * The names are added to the string travellerNames.
      * 
      */
-    private void createAdditionalCustomers(int seatsRemaining, Customer customer, String travellerNames, String nameOfSeats) {
+    private void createAdditionalCustomers(int seatsRemaining, int numberOfSeats, Customer customer, String travellerNames, String nameOfSeats, int flightID, String flight) {
           
         JPanel cusInputWest = new JPanel(new GridLayout(0,1));
         JPanel cusInputEast = new JPanel(new GridLayout(0,1));
@@ -332,7 +353,7 @@ public class GUI {
                 if(additionalCustomerNames[k].getText() == "Full name") {
                     JOptionPane errorDialog = new JOptionPane();
                     errorDialog.showMessageDialog(null, "Error! all the inputs were not names!");
-                    createAdditionalCustomers(seatsRemaining, customer, travellerNames, nameOfSeats);
+                    createAdditionalCustomers(seatsRemaining, numberOfSeats, customer, travellerNames, nameOfSeats, flightID, flight);
                 }
             }
             
@@ -340,17 +361,47 @@ public class GUI {
             for(int k = 0; k<additionalCustomerNames.length; k++) {
                travellerNames = travellerNames+(additionalCustomerNames[k].getText())+", ";
             }
-            makeOrder(travellerNames, customer, nameOfSeats);
+            makeOrder(travellerNames, customer, nameOfSeats, numberOfSeats, flightID, flight);
         }
     }
    
     
-    private void makeOrder(String travellers, Customer customer, String nameOfSeats) {
+    private void makeOrder(String travellers, Customer customer, String nameOfSeats, int numberOfSeats, int flightID, String flight) {
                 try {
                     customer.insert(database);
                     int customerID = customer.getKey();
-                    Order order = new Order(customerID, 2, nameOfSeats, travellers);
+                    
+                    Order order = new Order(customerID, flightID, nameOfSeats, travellers);
                     order.insert(database);
+                    
+                    Flight bookedFlight = new Flight(database, flightID);
+                    int bookedSeatsTotal = bookedFlight.getBookedSeats() + numberOfSeats;
+                    database.execute("UPDATE Flights WHERE id = " + flightID + " SET bookedseats = " + bookedSeatsTotal);
+                    
+                    String customerName = customer.getFirstname() + " " + customer.getLastname();
+                    String customerAddress = customer.getCountry() + ", " + customer.getCity() + ", " + customer.getAddress();
+                    String customerPhone = customer.getPhonenumber();
+                    
+                    contentPane.removeAll();
+                    JLabel labelID = new JLabel("Your Customer ID: " +customerID);
+                    JLabel labelName = new JLabel("Person in charge of booking: " +customerName);
+                    JLabel labelAddress = new JLabel("Address: " +customerAddress);
+                    JLabel labelPhone = new JLabel("Phone number: " + customerPhone);
+                    JLabel labelFlight = new JLabel("On flight: " + flightID + ", " + flight);
+                    JLabel labelSeats = new JLabel("You have booked: " +numberOfSeats+ " seat(s)");
+                    JLabel labelAllTravellers = new JLabel("Names of all travellers: " +travellers);
+                    contentPane.add(labelID, BorderLayout.CENTER);
+                    contentPane.add(labelName, BorderLayout.CENTER);
+                    contentPane.add(labelAddress, BorderLayout.CENTER);
+                    contentPane.add(labelPhone, BorderLayout.CENTER);
+                    contentPane.add(labelFlight, BorderLayout.CENTER);
+                    contentPane.add(labelSeats, BorderLayout.CENTER);
+                    contentPane.add(labelAllTravellers, BorderLayout.CENTER);
+        
+                    frame.pack();
+                    frame.setSize(500, 300);
+                    frame.setResizable(false);
+                    frame.setVisible(true);
                 } 
                 
                 catch (SQLException ex) {
@@ -383,6 +434,7 @@ public class GUI {
                 try {                    
                     Order order = new Order(database, Integer.parseInt(cusID.getText()));
                     Flight flight = new Flight(database, order.getFlight());
+                    
                     //Delete Option
                     if(result == JOptionPane.NO_OPTION) {
                         JOptionPane confirmDialog = new JOptionPane();
@@ -395,8 +447,8 @@ public class GUI {
                     //Edit Option
                     if(result == JOptionPane.YES_OPTION) {
                         FlightSeat flightseat = new FlightSeat(gui, database, flightScanner);
-                                                               flightseat.chooseSeats(flight.getKey(), flight.getNumberOfSeats(),
-                                                                                      1, Integer.parseInt(cusID.getText())); 
+                        String thisFlight = flight.getStartDestination()+"-"+flight.getEndDestination();
+                        flightseat.chooseSeats(flight.getKey(), flight.getNumberOfSeats(), thisFlight, 1, Integer.parseInt(cusID.getText())); 
                     }
                 }
                 catch (SQLException ex) {
@@ -451,41 +503,133 @@ public class GUI {
      
      
      /**
-      * When a Start Airport is chosen, the Destination box will change to
+      * When a flight is chosen, the route box will change to
       * display relevant flights. This is handled by our inner class 
-      * JComboBoxActionListener.
+      * JComboBoxFlightActionListener.
       */
-     private class JComboBoxActionListener implements ActionListener {
+     private class JComboBoxFlightActionListener implements ActionListener {
+        
+         ArrayList<Flight> flightsOnDate; 
          
-        public JComboBoxActionListener(GUI gui) {
-         
-     }
+        public JComboBoxFlightActionListener(ArrayList<Flight> flightsOnDate) {
+        
+            this.flightsOnDate = flightsOnDate;
+        }
         public void actionPerformed(ActionEvent e) {
             ArrayList<String> flightsDes = new ArrayList<String>();
-            String selectedValue = startComboBox.getSelectedItem().toString();
-            String[] destinations = null;
-
-            DefaultComboBoxModel model = (DefaultComboBoxModel) endComboBox.getModel();      
+            String selectedValue = routeComboBox.getSelectedItem().toString();
+            ArrayList<String> timestamps = new ArrayList<String>();
+            
+            flightsDes = flightScanner.destinationAnalyser(selectedValue);
+            for(int i = 0; i<flightsOnDate.size();i++) {
+                if(flightsDes.get(0).equals((flightsOnDate.get(i)).getStartDestination()) && 
+                    flightsDes.get(1).equals((flightsOnDate.get(i)).getEndDestination())) {
+                    timestamps.add((flightsOnDate.get(i)).timestamp());
+                }
+            }
+            String []timestampsArray = new String[timestamps.size()];
+            for(int j = 0; j<timestamps.size(); j++) {
+                timestampsArray[j] = timestamps.get(j);
+            }
+                    
+            DefaultComboBoxModel model = (DefaultComboBoxModel) timeComboBox.getModel();      
             model.removeAllElements();
             
-            /*System.out.println(route[i]);
-                flightsDes = flightScanner.destinationAnalyser(route[i]);
-                for(int j = 0; j<flightsDes.size(); j++) {
-                    System.out.println(flightsDes.get(j));
-                }*/
-            if(selectedValue.equals("type1")){
-                destinations = new String[]{"val11", "val12", "val13"};
-            } 
-            else if(selectedValue.equals("type2")){
-                destinations = new String[]{"val21", "val22", "val23"};
-            } 
-            else if(selectedValue.equals("type3")){
-                destinations = new String[]{"val31", "val32", "val33"};
+            for(String value : timestampsArray){
+                model.addElement(value);
             }
-
-            for(String val : destinations){
-                model.addElement(val);
+            String selectedTime = timeComboBox.getSelectedItem().toString();
+            
+            for(int i = 0; i<flightsOnDate.size();i++) {
+                if(selectedTime.equals(flightsOnDate.get(i).timestamp()) &&
+                   flightsDes.get(0).equals((flightsOnDate.get(i)).getStartDestination()) && 
+                   flightsDes.get(1).equals((flightsOnDate.get(i)).getEndDestination())) {
+                   remainingSeatsLabel.setText("Remaining seats on flight: "+ ((flightsOnDate.get(i).getNumberOfSeats())-(flightsOnDate.get(i).getBookedSeats())));
+                }
             }
         }
+    }
+     
+     private class ConfirmDateActionListener implements ActionListener {
+         JTextField startYear;
+         JTextField startMonth;
+         JTextField startDay;
+         public ConfirmDateActionListener(JTextField startYear, JTextField startMonth, JTextField startDay) {
+         this.startYear = startYear;
+         this.startMonth = startMonth;
+         this.startDay = startDay;
+        }
+        public void actionPerformed(ActionEvent e) {
+            if(isIntNumber(startYear.getText()) == false || (startYear.getText()).length() != 4  ||
+              isIntNumber(startMonth.getText()) == false || (startMonth.getText()).length() > 3 ||
+              isIntNumber(startDay.getText()) == false ||(startDay.getText()).length() > 3) {
+              
+                JOptionPane errorDialog = new JOptionPane();
+                errorDialog.showMessageDialog(null, "Error! input was not a date!");
+                chooseDate();
+           }
+           else { 
+               //turns the input into integers after we've checked if they are indeed integers.
+               String startMonthTemp = new String(startMonth.getText());
+               String startDayTemp = new String(startDay.getText());
+               int year = Integer.parseInt(startYear.getText());
+               int month = Integer.parseInt(startMonth.getText());
+               int day = Integer.parseInt(startDay.getText());
+               
+               //A check for whenever the month and day inputs are written in, for instance, 02 or 2. 
+               //If the first is the case, it's changed to 2.
+               if((startMonth.getText()).contains("0") == true) {
+                   startMonthTemp.substring((startMonth.getText()).length()-1);
+                   month = Integer.parseInt(startMonthTemp);
+               }
+               if((startDay.getText()).contains("0") == true) {
+                   startDayTemp.substring((startDay.getText()).length()-1);
+                   day = Integer.parseInt(startDayTemp);
+               }
+               NewDate date = new NewDate(year, month, day);
+               chooseFlight(startYear.getText(), startMonth.getText(), startDay.getText()); 
+          }
+        }
+     }
+     
+     private class ConfirmFlightActionListener implements ActionListener {
+         
+         String year;
+         String month;
+         String day;
+         ArrayList<Flight> flightsOnDate;
+
+         public ConfirmFlightActionListener(String year, String month, String day, ArrayList<Flight> flightsOnDate) {
+            this.year = year;
+            this.month = month;
+            this.day = day;
+            this.flightsOnDate = flightsOnDate;
+         }
+         
+         public void actionPerformed(ActionEvent e) {
+             if(routeComboBox.getSelectedItem() == "Nothing Selected") {
+              
+                JOptionPane errorDialog = new JOptionPane();
+                errorDialog.showMessageDialog(null, "Error! Please choose a flight!");
+                chooseFlight(year, month, day);
+            }
+            else {
+                ArrayList<String> flightsDes = new ArrayList<String>();
+                String selectedRoute = routeComboBox.getSelectedItem().toString();
+                String selectedTime = timeComboBox.getSelectedItem().toString();
+            
+                flightsDes = flightScanner.destinationAnalyser(selectedRoute);
+                for(int i = 0; i<flightsOnDate.size();i++) {
+                    if(flightsDes.get(0).equals((flightsOnDate.get(i)).getStartDestination()) && 
+                       flightsDes.get(1).equals((flightsOnDate.get(i)).getEndDestination()) &&
+                       selectedTime.equals((flightsOnDate.get(i)).timestamp())) {
+                       
+                        String flight = selectedRoute + ", " + selectedTime;
+                        FlightSeat flightseat = new FlightSeat(gui, database, flightScanner);
+                        flightseat.chooseSeats(flightsOnDate.get(i).getKey(), flightsOnDate.get(i).getNumberOfSeats(),flight, 0, 0);
+                    }
+                }
+            }
+         }
      }
 }
