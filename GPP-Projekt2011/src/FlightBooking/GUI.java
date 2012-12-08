@@ -205,37 +205,9 @@ public class GUI {
         frame.pack();
         frame.setSize(500, 300);
         frame.setResizable(false);
-        /*JOptionPane inputDialog = new JOptionPane();
-        int result = inputDialog.showConfirmDialog(frame, flightChoice, "Search Options", inputDialog.OK_CANCEL_OPTION);
-        if(result == inputDialog.YES_OPTION) {
-            if(routeComboBox.getSelectedItem() == "Nothing Selected") {
-              
-                JOptionPane errorDialog = new JOptionPane();
-                errorDialog.showMessageDialog(null, "Error! Please choose a flight!");
-                chooseFlight(year, month, day);
-            }
-            else {
-                ArrayList<String> flightsDes = new ArrayList<String>();
-                String selectedRoute = routeComboBox.getSelectedItem().toString();
-                String selectedTime = timeComboBox.getSelectedItem().toString();
-                ArrayList<String> timestamps = new ArrayList<String>();
-            
-                flightsDes = flightScanner.destinationAnalyser(selectedRoute);
-                for(int i = 0; i<flightsOnDate.size();i++) {
-                    if(flightsDes.get(0).equals((flightsOnDate.get(i)).getStartDestination()) && 
-                       flightsDes.get(1).equals((flightsOnDate.get(i)).getEndDestination()) &&
-                       selectedTime.equals((flightsOnDate.get(i)).timestamp())) {
-                       
-                        FlightSeat flightseat = new FlightSeat(gui, database, flightScanner);
-                        flightseat.chooseSeats(flightsOnDate.get(i).getKey(), flightsOnDate.get(i).getNumberOfSeats(), 0, 0);
-                    }
-                }
-            }
-        }*/
     }
     
-    
-    
+        
     /*
      * You create the traveller responsible for the tickets.
      */
@@ -376,7 +348,7 @@ public class GUI {
                     
                     Flight bookedFlight = new Flight(database, flightID);
                     int bookedSeatsTotal = bookedFlight.getBookedSeats() + numberOfSeats;
-                    database.execute("UPDATE Flights WHERE id = " + flightID + " SET bookedseats = " + bookedSeatsTotal);
+                    database.execute("UPDATE Flights SET bookedseats = " + bookedSeatsTotal + " WHERE id = " + flightID);
                     
                     String customerName = customer.getFirstname() + " " + customer.getLastname();
                     String customerAddress = customer.getCountry() + ", " + customer.getCity() + ", " + customer.getAddress();
@@ -434,6 +406,7 @@ public class GUI {
                 try {                    
                     Order order = new Order(database, Integer.parseInt(cusID.getText()));
                     Flight flight = new Flight(database, order.getFlight());
+                    Customer customer = new Customer(database, order.getCustomer());
                     
                     //Delete Option
                     if(result == JOptionPane.NO_OPTION) {
@@ -441,6 +414,11 @@ public class GUI {
                         int confirmResult = confirmDialog.showConfirmDialog(gui.returnFrame(),"Are you sure you wish to delete your order?",
                                                             "Confirm your choice.", confirmDialog.OK_CANCEL_OPTION);
                         if(confirmResult == confirmDialog.YES_OPTION) {
+                            FlightScanner flightscanner = new FlightScanner();
+                            int numberOfSeats = (flightscanner.seatAnalyser(order.getSeat())).size();
+                            int bookedSeatsTotal = flight.getBookedSeats() - numberOfSeats;
+                            database.execute("UPDATE Flights SET bookedseats = " + bookedSeatsTotal + " WHERE id = " + order.getFlight());
+                            customer.delete(database, customer.getKey());
                             order.delete(database, order.getKey());
                         }
                     }

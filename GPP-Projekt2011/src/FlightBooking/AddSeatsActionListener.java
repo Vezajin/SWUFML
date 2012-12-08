@@ -126,6 +126,8 @@ public class AddSeatsActionListener implements ActionListener {
             try {
                 //For each traveller, the traveller's name is added to the string existing names string on the order.
                 Order order = new Order(database, customerID);
+                Flight flight = new Flight(database, order.getFlight());
+                int bookedSeatsTotal = flight.getBookedSeats() + seats;
                 String travellerNames = order.getName();
                 
                 String originalNameOfSeats = order.getSeat();
@@ -134,8 +136,9 @@ public class AddSeatsActionListener implements ActionListener {
             for(int k = 0; k<additionalTravellersNames.length; k++) {
                travellerNames = travellerNames+(additionalTravellersNames[k].getText())+", ";
                
-               database.execute("UPDATE Orders WHERE customerid = " + customerID + " SET namestring = " + travellerNames + 
-                                " AND UPDATE Orders WHERE customerid = " + customerID + " SET seatstring = " + nameOfSeats);
+               database.execute("UPDATE Orders SET namestring = " + travellerNames + " WHERE customerID = " + customerID + 
+                                " AND UPDATE Orders SET seatstring = " + nameOfSeats + " WHERE customerID = " + customerID + "AND"
+                                + "UPDATE Flights SET bookedseats = " + bookedSeatsTotal + " WHERE id = " + order.getFlight());
             }
             
             } catch (SQLException ex) {

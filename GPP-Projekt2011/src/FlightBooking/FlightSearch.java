@@ -23,7 +23,7 @@ public class FlightSearch {
         ArrayList<Flight> resultArray = new ArrayList<Flight>();
         while(rs.next()) {
             System.out.println("Start destination: " + rs.getString("startdestination") + " - End destination: " + rs.getString("enddestination") + " - Date: " + rs.getDate("date"));
-            Flight f = new Flight(rs.getString("startdestination"), rs.getString("enddestination"), rs.getDate("date"), rs.getInt("numberofseats"), rs.getString("timestamp"));
+            Flight f = new Flight(rs.getInt("id"), rs.getString("startdestination"), rs.getString("enddestination"), rs.getDate("date"), rs.getInt("numberofseats"), rs.getString("timestamp"));
             resultArray.add(f);
         }
         int arraySize = resultArray.size();

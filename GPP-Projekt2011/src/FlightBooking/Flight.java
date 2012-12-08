@@ -23,6 +23,16 @@ public class Flight implements DatabaseTable {
         timestamp = t;
     }
     
+    public Flight(int k, String s, String e, Date d, int ns, String t) {
+        key = k;
+        bookedseats = 0;
+        startdes = s;
+        enddes = e;
+        date = d;
+        numberofseats = ns;
+        timestamp = t;
+    }
+    
     // Initializes the ResultSet
     @Override
     public void init(ResultSet rs) throws SQLException {
