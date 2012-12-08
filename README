@@ -3,3 +3,5 @@ THE README.
 53rd git commit: Program version 1.0 complete.
 
 54th git commit: Program version 1.1 complete. Can actually save things properly in the Database now.
+
+55th git commit: Program version 1.11 complete. Fixed Flight class so the number of bookedseats is retrieved and used from the database.

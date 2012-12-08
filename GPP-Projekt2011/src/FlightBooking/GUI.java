@@ -522,7 +522,11 @@ public class GUI {
                 if(selectedTime.equals(flightsOnDate.get(i).timestamp()) &&
                    flightsDes.get(0).equals((flightsOnDate.get(i)).getStartDestination()) && 
                    flightsDes.get(1).equals((flightsOnDate.get(i)).getEndDestination())) {
-                   remainingSeatsLabel.setText("Remaining seats on flight: "+ ((flightsOnDate.get(i).getNumberOfSeats())-(flightsOnDate.get(i).getBookedSeats())));
+                    
+                    int totalSeatsOnFlight = (flightsOnDate.get(i).getNumberOfSeats());
+                    int bookedSeatsOnFlight = (flightsOnDate.get(i).getBookedSeats());
+                    int seatsRemaining = totalSeatsOnFlight - bookedSeatsOnFlight;
+                    remainingSeatsLabel.setText("Remaining seats on flight: "+ seatsRemaining);
                 }
             }
         }
@@ -564,7 +568,6 @@ public class GUI {
                    startDayTemp.substring((startDay.getText()).length()-1);
                    day = Integer.parseInt(startDayTemp);
                }
-               NewDate date = new NewDate(year, month, day);
                chooseFlight(startYear.getText(), startMonth.getText(), startDay.getText()); 
           }
         }

@@ -13,7 +13,7 @@ public class Flight implements DatabaseTable {
     private String startdes, enddes, timestamp;
     private Date date;
     
-    public Flight(String s, String e, Date d, int ns, String t) {
+    public Flight(String s, String e, Date d, int ns, String t, int bs) {
         key = 0;
         bookedseats = 0;
         startdes = s;
@@ -21,9 +21,10 @@ public class Flight implements DatabaseTable {
         date = d;
         numberofseats = ns;
         timestamp = t;
+        bookedseats = bs;
     }
     
-    public Flight(int k, String s, String e, Date d, int ns, String t) {
+    public Flight(int k, String s, String e, Date d, int ns, String t, int bs) {
         key = k;
         bookedseats = 0;
         startdes = s;
@@ -31,6 +32,7 @@ public class Flight implements DatabaseTable {
         date = d;
         numberofseats = ns;
         timestamp = t;
+        bookedseats = bs;
     }
     
     // Initializes the ResultSet
@@ -102,7 +104,7 @@ public class Flight implements DatabaseTable {
         Database db = new Database();
         for(int i = sd; i < ed; i++) {
             Date d = new NewDate(y, m, i).getDate();
-            Flight f = new Flight(s, e, d, ns, t);
+            Flight f = new Flight(s, e, d, ns, t, 0);
             f.insert(db);
         }
         db.close();
