@@ -71,43 +71,20 @@ public class GUI {
         menu = new JMenu("Reservations");
         menubar.add(menu);
         
-        item = new JMenuItem("Make Reservation");
-            item.addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent e) { makeReservation(); }
-            });
-        menu.add(item);
-                
-        item = new JMenuItem("Edit or Delete Reservation");
-            item.addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent e) { editReservation(); }
-            });
-        menu.add(item);
-        
-        item = new JMenuItem("TEST");
-            item.addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent e) { chooseFlight("2013", "01", "09"); }
-            });
-        menu.add(item);
-        
-        menu = new JMenu("Flights");
-        menubar.add(menu);
-        
-        item = new JMenuItem("Search for flights");
+        item = new JMenuItem("Make reservations or see flights");
             item.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) { chooseDate(); }
             });
         menu.add(item);
+                
+        item = new JMenuItem("Edit or delete reservation");
+            item.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) { editReservation(); }
+            });
+        menu.add(item);
     }
     
-    
-    /**
-     * Starts the process of booking seat(s) on a flight.
-     */
-    private void makeReservation() {
-        chooseDate();
-    }
-    
-    
+
     /*
      * This method is used for determining which date the customer wishes to depart.
      */
