@@ -9,3 +9,5 @@ THE README.
 58th git commit: Program version 1.12 complete. Fixed GUI bugs.
 
 59th git commit: program version 1.2 complete. User test issues have been fixed. Program should be fully functional now.
+
+60th git commit: Added the date on the seat booking window to avoid confusion if you have multiple booking windows open at the same time. Shouldn't affect testing.

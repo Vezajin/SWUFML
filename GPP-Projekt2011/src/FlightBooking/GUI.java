@@ -606,7 +606,7 @@ public class GUI {
                        flightsDes.get(1).equals((flightsOnDate.get(i)).getEndDestination()) &&
                        selectedTime.equals((flightsOnDate.get(i)).timestamp())) {
                        
-                        String flight = selectedRoute + ", " + selectedTime;
+                        String flight = selectedRoute + ", " + flightsOnDate.get(i).getDate() + ", " + selectedTime;
                         FlightSeat flightseat = new FlightSeat(gui, database, flightScanner);
                         flightseat.chooseSeats(flightsOnDate.get(i).getKey(), flightsOnDate.get(i).getNumberOfSeats(),flight, 0, 0);
                     }
