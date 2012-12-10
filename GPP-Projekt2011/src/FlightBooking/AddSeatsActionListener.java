@@ -24,9 +24,10 @@ public class AddSeatsActionListener implements ActionListener {
         private FlightSeat flightseat;
         private Database database;
         private String flight;
+        private JDialog seatsDialog;
                 
         public AddSeatsActionListener(Database database, GUI gui, FlightSeat flightseat, JButton[] buttonFinished, int chosenFlight, 
-                                            int seats, String flight, int finalMethodChecker, int finalCustomerID) {
+                                            int seats, String flight, int finalMethodChecker, int finalCustomerID, JDialog seatsDialog) {
             this.database = database;
             this.gui = gui;
             this.flightseat = flightseat;
@@ -36,6 +37,7 @@ public class AddSeatsActionListener implements ActionListener {
             this.finalMethodChecker = finalMethodChecker;
             this.finalCustomerID = finalCustomerID; 
             this.flight = flight;
+            this.seatsDialog = seatsDialog;
         }
          
          public void actionPerformed(ActionEvent e) {   
@@ -136,9 +138,10 @@ public class AddSeatsActionListener implements ActionListener {
             for(int k = 0; k<additionalTravellersNames.length; k++) {
                travellerNames = travellerNames+(additionalTravellersNames[k].getText())+", ";
                
-               database.execute("UPDATE Orders SET namestring = " + travellerNames + " WHERE customerID = " + customerID + 
-                                " AND UPDATE Orders SET seatstring = " + nameOfSeats + " WHERE customerID = " + customerID + "AND"
-                                + "UPDATE Flights SET bookedseats = " + bookedSeatsTotal + " WHERE id = " + order.getFlight());
+               database.execute("UPDATE Orders SET namestring = '" + travellerNames + "' WHERE customerID = " + customerID); 
+               database.execute("UPDATE Orders SET seatstring = '" + nameOfSeats + "' WHERE customerID = " + customerID);
+               database.execute("UPDATE Flights SET bookedseats = " + bookedSeatsTotal + " WHERE id = " + order.getFlight());
+               seatsDialog.dispose();
             }
             
             } catch (SQLException ex) {

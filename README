@@ -7,3 +7,5 @@ THE README.
 55th git commit: Program version 1.11 complete. Fixed Flight class so the number of bookedseats is retrieved and used from the database.
 
 58th git commit: Program version 1.12 complete. Fixed GUI bugs.
+
+59th git commit: program version 1.2 complete. User test issues have been fixed. Program should be fully functional now.

@@ -121,7 +121,7 @@ public class FlightSeat {
                 ArrayList<String>customersBookedSeats = new ArrayList<String>();
                 ArrayList<String>customersBookedNames = new ArrayList<String>();
                 //Finds all the booked seats attached to the order that is to be changed.
-                ResultSet rsBookedSeats = database.execute("SELECT seatstring AND namestring FROM Orders WHERE customerid = " + customerID);
+                ResultSet rsBookedSeats = database.execute("SELECT * FROM Orders WHERE customerid = " + customerID);
                 if(rsBookedSeats.next()) {
                     //gets an ArrayList with all the booked seats. 
                     
@@ -156,7 +156,7 @@ public class FlightSeat {
                                 }
                                 // Adds new AL to the save button. when pressed it will now call saveAdditionalSeats.
                                 AddSeatsActionListener ASAC = new AddSeatsActionListener(database, gui, this, buttonFinished, chosenFlight, 
-                                                                                            seats, flight, finalMethodChecker, finalCustomerID);
+                                                                                            seats, flight, finalMethodChecker, finalCustomerID, seatsDialog);
                                 save.addActionListener(ASAC);
                                 makeDialog(seatsDialog);
                                 //return seatsDialog;
@@ -170,7 +170,7 @@ public class FlightSeat {
                                 }
                                 for(int c = 0; c<chosenButtons.length; c++) {
                                     chosenButtons[c].setEnabled(true);
-                                    button[c].setToolTipText(customersBookedNames.get(c));
+                                    chosenButtons[c].setToolTipText(customersBookedNames.get(c));
                                 }
                                 DeleteSeatsActionListener DSAC = new DeleteSeatsActionListener(finalChosenSeats, chosenFlight, seats, flight, 
                                                                                                 finalMethodChecker, finalCustomerID, customersBookedSeats);
@@ -180,6 +180,10 @@ public class FlightSeat {
                             }
                             //If you want to move your seats.
                             if(optionResult == JOptionPane.CANCEL_OPTION) {
+                                for(int c = 0; c<chosenButtons.length; c++) {
+                                    chosenButtons[c].setEnabled(true);
+                                    chosenButtons[c].setToolTipText(customersBookedNames.get(c));
+                                }
                                 MoveSeatsActionListener MSAC = new MoveSeatsActionListener(buttonFinished, finalChosenSeats, 
                                                                         chosenFlight, seats, flight, finalMethodChecker, finalCustomerID);
                                 save.addActionListener(MSAC);
@@ -332,12 +336,12 @@ public class FlightSeat {
              for(int a = 0; a<customerSeatsAL.size(); a++) {
                 for(int b = 0; b <finalChosenButtons.length; b++) {
                     //Makes the booked seats for the order Blue and clickable again. Also removes the ActionListener from the save button.
-                    if((finalChosenButtons[b].getText()).equals(customerSeatsAL.get(a)) && finalChosenButtons[b].getBackground() == Color.BLUE) {
+                    if((finalChosenButtons[b].getText()).equals(customerSeatsAL.get(a)) == true && finalChosenButtons[b].getBackground() == Color.BLUE) {
                             remainingSeats++;
                             nameOfSeats = nameOfSeats+((customerSeatsAL.get(a)) + " ");
-                            travellerNames = finalChosenButtons[b].getToolTipText() + ", ";
+                            travellerNames = travellerNames + finalChosenButtons[b].getToolTipText() + ", ";                           
                     }
-                    else if(finalChosenButtons[b].getText().equals(customerSeatsAL.get(a)) && finalChosenButtons[b].getBackground() == Color.GREEN) {
+                    else if(finalChosenButtons[b].getText().equals(customerSeatsAL.get(a)) == true && finalChosenButtons[b].getBackground() == Color.GREEN) {
                         deletedSeats = deletedSeats+((customerSeatsAL.get(a)) + " ");
                         removedNames = finalChosenButtons[b].getToolTipText() + ", ";
                     }
@@ -350,13 +354,14 @@ public class FlightSeat {
             }
             else {
                  try {
-                    Order order = new Order(database, finalCustomerID); 
+                    Order order = new Order(database, finalCustomerID);
                     Flight thisFlight = new Flight(database, order.getFlight());
                     int numberOfDeletedSeats = customerSeatsAL.size() - remainingSeats;
                     int bookedSeatsTotal = thisFlight.getBookedSeats() - numberOfDeletedSeats;
-                    database.execute("UPDATE Orders SET namestring = " + travellerNames + " WHERE customerid = " + finalCustomerID +
-                                     " AND UPDATE Orders SET seatstring = " + nameOfSeats + " WHERE customerid = " + finalCustomerID + "AND "
-                                     + "UPDATE Flights SET bookedseats = " + bookedSeatsTotal + " WHERE id = " + order.getFlight());
+                    database.execute("UPDATE Orders SET namestring = '" + travellerNames + "' WHERE customerid = " + finalCustomerID );
+                    database.execute("UPDATE Orders SET seatstring = '" + nameOfSeats + "' WHERE customerid = " + finalCustomerID);
+                    database.execute("UPDATE Flights SET bookedseats = '" + bookedSeatsTotal + "' WHERE id = " + order.getFlight());
+                    seatsDialog.dispose();
                  } catch (SQLException ex) {
                     System.out.println("ERROR! Could not delete seats from order. Exception: " + ex);
                  }
@@ -397,7 +402,8 @@ public class FlightSeat {
             }
             if(howManySeatsChosen == finalChosenButtons.length) {
                 try {
-                    database.execute("UPDATE Orders set seatstring = " + nameOfSeats + " WHERE customerid = " + finalCustomerID);
+                    database.execute("UPDATE Orders SET seatstring = '" + nameOfSeats + "' WHERE customerid = " + finalCustomerID);
+                    seatsDialog.dispose();
                 } catch (SQLException ex) {
                     System.out.println("Error updating new seats, exception: " + ex);
                 }
