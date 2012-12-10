@@ -298,12 +298,17 @@ public class GUI {
         int cusResult = inputDialog.showConfirmDialog(frame, cusInput, "Additional Travellers Names", inputDialog.OK_CANCEL_OPTION);
         if(cusResult == inputDialog.YES_OPTION) {
             
+            int anyErrors = 0;
             for(int k = 0; k<additionalCustomerNames.length; k++) {
-                if(additionalCustomerNames[k].getText() == "Full name") {
-                    JOptionPane errorDialog = new JOptionPane();
-                    errorDialog.showMessageDialog(null, "Error! all the inputs were not names!");
-                    createAdditionalCustomers(seatsRemaining, numberOfSeats, customer, travellerNames, nameOfSeats, flightID, flight);
+                if(additionalCustomerNames[k].getText().equals("Full name") == true || additionalCustomerNames[k].getText().equals(null) == true || additionalCustomerNames[k].getText().equals("") == true) {
+                anyErrors++;
                 }
+            }
+            if(anyErrors > 0) {
+                JOptionPane errorDialog = new JOptionPane();
+                errorDialog.showMessageDialog(null, "Error! all the inputs were not names!");
+                createAdditionalCustomers(seatsRemaining, numberOfSeats, customer, travellerNames, nameOfSeats, flightID, flight);
+                anyErrors = 0;    
             }
             
             //For each traveller, the traveller's name is added to the string from createCustomer.

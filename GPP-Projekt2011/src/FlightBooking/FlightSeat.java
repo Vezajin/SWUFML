@@ -20,6 +20,7 @@ public class FlightSeat {
     private GUI gui;
     private Database database;
     private FlightScanner flightScanner;
+    private JDialog seatsDialog;
             
     
     public FlightSeat(GUI gui, Database database, FlightScanner flightScanner) {
@@ -28,7 +29,7 @@ public class FlightSeat {
         this.flightScanner = flightScanner;
     }
     public void chooseSeats(int flightID, int numberOfSeats, String flight, int methodChecker, int customerID) {
-        JDialog seatsDialog = new JDialog(gui.returnFrame());
+        seatsDialog = new JDialog(gui.returnFrame());
         
         Container seatsContentPane = seatsDialog.getContentPane();
        
@@ -240,6 +241,7 @@ public class FlightSeat {
                                                             "Confirm your choice", succesDialog.OK_CANCEL_OPTION);
             if(succesResult == succesDialog.YES_OPTION) {
                 gui.createCustomer(seats, nameOfSeats, flightID, flight);
+                seatsDialog.dispose();
             }
             //If you're not happy with your choice or try to close the window, you're sent back to choosing seats.
             else {
