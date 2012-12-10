@@ -161,7 +161,7 @@ public class GUI {
               
         flightChoice.add(new JLabel("Where do you wish to go?"));
         flightChoice.add(routeComboBox);
-        routeComboBox.addActionListener(new JComboBoxFlightActionListener(flightsOnDate));
+        routeComboBox.addActionListener(new JComboBoxFlightActionListener(flightsOnDate, year, month, day));
         
         String[] noTimestamp = {"Nothing Selected"};
         timeComboBox = new JComboBox(noTimestamp);
@@ -338,14 +338,23 @@ public class GUI {
                     JLabel labelPhone = new JLabel("Phone number: " + customerPhone);
                     JLabel labelFlight = new JLabel("On flight: " + flightID + ", " + flight);
                     JLabel labelSeats = new JLabel("You have booked: " +numberOfSeats+ " seat(s)");
-                    JLabel labelAllTravellers = new JLabel("Names of all travellers: " +travellers);
-                    contentPane.add(labelID, BorderLayout.CENTER);
-                    contentPane.add(labelName, BorderLayout.CENTER);
-                    contentPane.add(labelAddress, BorderLayout.CENTER);
-                    contentPane.add(labelPhone, BorderLayout.CENTER);
-                    contentPane.add(labelFlight, BorderLayout.CENTER);
-                    contentPane.add(labelSeats, BorderLayout.CENTER);
-                    contentPane.add(labelAllTravellers, BorderLayout.CENTER);
+                    JLabel labelAllTravellers = new JLabel("Names of all travellers:");
+                    JPanel ticketPrint = new JPanel(new GridLayout(0,1));
+                    ticketPrint.add(labelID);
+                    ticketPrint.add(labelName);
+                    ticketPrint.add(labelAddress);
+                    ticketPrint.add(labelPhone);
+                    ticketPrint.add(labelFlight);
+                    ticketPrint.add(labelSeats);
+                    ticketPrint.add(labelAllTravellers);
+                    
+                    FlightScanner flightscanner = new FlightScanner();
+                    ArrayList<String> travellerNames = flightscanner.nameAnalyser(travellers);
+                    
+                    for(int i = 0; i<travellerNames.size(); i++) {
+                        ticketPrint.add(new JLabel(travellerNames.get(i)));
+                    }
+                    contentPane.add(ticketPrint);
         
                     frame.pack();
                     frame.setSize(500, 300);
@@ -465,16 +474,22 @@ public class GUI {
      private class JComboBoxFlightActionListener implements ActionListener {
         
          ArrayList<Flight> flightsOnDate; 
+         String year;
+         String month;
+         String day;
          
-        public JComboBoxFlightActionListener(ArrayList<Flight> flightsOnDate) {
+        public JComboBoxFlightActionListener(ArrayList<Flight> flightsOnDate, String year, String month, String day) {
         
             this.flightsOnDate = flightsOnDate;
+            this.year = year;
+            this.month = month;
+            this.day = day;
         }
         public void actionPerformed(ActionEvent e) {
             ArrayList<String> flightsDes = new ArrayList<String>();
             String selectedValue = routeComboBox.getSelectedItem().toString();
             ArrayList<String> timestamps = new ArrayList<String>();
-            
+            if(selectedValue.equals("Nothing Selected") == false) {
             flightsDes = flightScanner.destinationAnalyser(selectedValue);
             for(int i = 0; i<flightsOnDate.size();i++) {
                 if(flightsDes.get(0).equals((flightsOnDate.get(i)).getStartDestination()) && 
@@ -505,6 +520,10 @@ public class GUI {
                     int seatsRemaining = totalSeatsOnFlight - bookedSeatsOnFlight;
                     remainingSeatsLabel.setText("Remaining seats on flight: "+ seatsRemaining);
                 }
+            }
+            }
+            else {
+                chooseFlight(year,month,day);
             }
         }
     }

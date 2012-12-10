@@ -27,7 +27,7 @@ public class FlightSeat {
         this.database = database;
         this.flightScanner = flightScanner;
     }
-    public JDialog chooseSeats(int flightID, int numberOfSeats, String flight, int methodChecker, int customerID) {
+    public void chooseSeats(int flightID, int numberOfSeats, String flight, int methodChecker, int customerID) {
         JDialog seatsDialog = new JDialog(gui.returnFrame());
         
         Container seatsContentPane = seatsDialog.getContentPane();
@@ -80,6 +80,7 @@ public class FlightSeat {
             i++;
         }
         
+        
         ArrayList<String>bookedSeats = new ArrayList<String>(); 
         try {
             ResultSet rsSeats = database.execute("SELECT seatstring FROM Orders WHERE flightid = " + flightID);
@@ -105,7 +106,7 @@ public class FlightSeat {
             middle.add(new JButton()).setEnabled(false);
             JButton save = new JButton("Save");
             south.add(save);
-            SaveActionListener SAC = new SaveActionListener(buttonFinished, chosenFlight, seats, flight, finalMethodChecker, finalCustomerID);
+            SaveActionListener SAC = new SaveActionListener(buttonFinished, chosenFlight, seats, flight, finalMethodChecker, finalCustomerID, seatsDialog);
             save.addActionListener(SAC);
             
             seatsContentPane.add(new JLabel(flight), BorderLayout.NORTH);
@@ -157,7 +158,7 @@ public class FlightSeat {
                                                                                             seats, flight, finalMethodChecker, finalCustomerID);
                                 save.addActionListener(ASAC);
                                 makeDialog(seatsDialog);
-                                return seatsDialog;
+                                //return seatsDialog;
                             }
                             //If you wanna delete seats from the order.
                             if(optionResult == JOptionPane.NO_OPTION) {
@@ -174,7 +175,7 @@ public class FlightSeat {
                                                                                                 finalMethodChecker, finalCustomerID, customersBookedSeats);
                                 save.addActionListener(DSAC);
                                 makeDialog(seatsDialog);
-                                return seatsDialog;
+                                //return seatsDialog;
                             }
                             //If you want to move your seats.
                             if(optionResult == JOptionPane.CANCEL_OPTION) {
@@ -182,7 +183,7 @@ public class FlightSeat {
                                                                         chosenFlight, seats, flight, finalMethodChecker, finalCustomerID);
                                 save.addActionListener(MSAC);
                                 makeDialog(seatsDialog);
-                                return seatsDialog;
+                                //return seatsDialog;
                             }
                             else {
 
@@ -192,14 +193,14 @@ public class FlightSeat {
 //------------------------------------------------------------------------------            
             else {
                 makeDialog(seatsDialog);
-                return seatsDialog;
+                //return seatsDialog;
             }
         }
         catch (SQLException ex) {
             System.out.println("finding order exception : " + ex);
         }
         //This is just to make the compiler happy. Also if you press the close button, when methodChecker == 1, this will happen.
-        return null;
+        //return null;
     }
     
     
@@ -212,7 +213,7 @@ public class FlightSeat {
     }
     
     
-    private void saveChosenSeats(JButton[] button, int flightID, int numberOfSeats, String flight, int methodChecker, int customerID) {
+    private void saveChosenSeats(JButton[] button, int flightID, int numberOfSeats, String flight, int methodChecker, int customerID, JDialog dialog) {
         int seats = 0;
         String nameOfSeats = new String();
         
@@ -280,17 +281,19 @@ public class FlightSeat {
         private int finalMethodChecker;
         private int finalCustomerID;
         private String flight;
+        private JDialog dialog;
         
-        public SaveActionListener(JButton[] buttonFinished, int chosenFlight, int seats, String flight, int finalMethodChecker, int finalCustomerID) {
+        public SaveActionListener(JButton[] buttonFinished, int chosenFlight, int seats, String flight, int finalMethodChecker, int finalCustomerID, JDialog dialog) {
             this.buttonFinished = buttonFinished;
             this.chosenFlight = chosenFlight;
             this.seats = seats;
             this.finalMethodChecker = finalMethodChecker;
             this.finalCustomerID = finalCustomerID;
             this.flight = flight;
+            this.dialog = dialog;
         }
         public void actionPerformed(ActionEvent e) {
-            saveChosenSeats(buttonFinished, chosenFlight, seats, flight, finalMethodChecker, finalCustomerID);
+            saveChosenSeats(buttonFinished, chosenFlight, seats, flight, finalMethodChecker, finalCustomerID, dialog);
         }
     }
     
