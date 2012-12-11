@@ -5,8 +5,8 @@
 package FlightBooking;
 import java.sql.*;
 import java.util.Calendar;
+
 /**
- *
  * @author Nikolaj
  */
 public class NewDate {
@@ -19,7 +19,7 @@ public class NewDate {
        date = new Date(c.getTimeInMillis());
    }
    
-   private int whatMonth(int month) {
+   public int whatMonth(int month) {
         int i = 0;
         if(month == 1) {
             i = Calendar.JANUARY;
@@ -62,10 +62,6 @@ public class NewDate {
    
    public Date getDate() {
        return date;
-   }
-   
-   public int getDateInt() {
-       return 4;
    }
 }
 

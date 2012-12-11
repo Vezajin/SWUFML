@@ -5,23 +5,18 @@ import java.util.ArrayList;
 
 /**
  * This is the class that scans Strings retrieved from the database. These 
- * Strings contain names (firstname and lastname) and seats per order. 
+ * Strings contain names (first name and last name) and seats per order. 
  * @author FrederikTH
  */
 public class FlightScanner {
     
-    /**
-     * Constructoren er et dårligt eksempel.
-     */
-    public FlightScanner() {
-            
-    }
+    public FlightScanner() {}
         
     /**
      * This method scans and breaks String input into smaller Strings and stores 
      * them in an Array. Only usable with seat-Strings.
-     * @param input Is a String retrieved from the database. It contains the 
-     * all seats in a given order (seats only). 
+     * @param input Is a String retrieved from the database. It contains all the 
+     * seats in a given order (seats only). 
      * @return Returns an ArrayList comprising of Strings where each index equals 
      * a seat which is booked. 
      */
@@ -68,11 +63,6 @@ public class FlightScanner {
             }
         return desScan;
     }
-    /*Scanner scan = new Scanner("Nikolja Lollike Mark Klitgård Frederik "
-                    + "Hoffmann Birgitte Hoffmann Johannes Døberen Snave Polle "
-                    + "Bølle Bob Hans Hansen Peter Petersen");
-            ArrayList<String> nameScan = new ArrayList<String>();        
-            while(scan.hasNext()== true) {
-            System.out.println(scan.next()+" " + scan.next());                                
-            }*/
-}
+ }   
+
+
