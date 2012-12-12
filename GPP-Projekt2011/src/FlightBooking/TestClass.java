@@ -6,7 +6,8 @@ import java.util.logging.Logger;
 import java.sql.*;
 
 /**
- * Write test related stuff in here GUYS!?!?
+ * TestClass contains tests for various methods that was not intuitive to test
+ * with JUnit.
  * @author Nikolaj
  */
 public class TestClass {
@@ -30,13 +31,13 @@ public class TestClass {
         c.insert(db);
     }
     
-    public void testArrayStuff() throws SQLException {
+    public void testFlightSearch1() throws SQLException {
         FlightSearch fs = new FlightSearch();
         Database db = new Database();
         fs.getSpecDateFlights(db, "2013", "01", "09");
     }
     
-    public void testArrayStuff2() throws SQLException {
+    public void testFlightSearch2() throws SQLException {
         FlightSearch fs = new FlightSearch();
         Database db = new Database();
         fs.getDateFlights(db, "2013", "01", "04", "2013", "01", "14");
