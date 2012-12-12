@@ -8,8 +8,6 @@ import javax.swing.*;
 import java.sql.*;
 import java.util.*;
 import java.util.ArrayList;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 
 
@@ -23,7 +21,8 @@ public class GUI {
     private JFrame frame;
     private JPanel contentPane;
     private BorderLayout layout;
-    private JComboBox routeComboBox, timeComboBox, remainingSeatsComboBox;
+    private JComboBox routeComboBox, timeComboBox;
+    private JComboBoxTimeAC timeAC;
     private JLabel remainingSeatsLabel;
     private Database database;
     private FlightScanner flightScanner;
@@ -76,6 +75,12 @@ public class GUI {
                 public void actionPerformed(ActionEvent e) { chooseDate(); }
             });
         menu.add(item);
+        
+        item = new JMenuItem("Test");
+            item.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) { choosePeriod(); }
+            });
+        menu.add(item);
                 
         item = new JMenuItem("Edit or delete reservation");
             item.addActionListener(new ActionListener() {
@@ -114,6 +119,51 @@ public class GUI {
         frame.setResizable(false);
     }
     
+    private void choosePeriod() {
+        JPanel dateInput = new JPanel(new GridLayout(1,1));
+        JPanel startDateInput = new JPanel(new GridLayout(0,1));
+        JPanel endDateInput = new JPanel(new GridLayout(0,1));
+        
+        JTextField startYear = new JTextField();
+        JTextField startMonth = new JTextField();
+        JTextField startDay = new JTextField();
+        JTextField endYear = new JTextField();
+        JTextField endMonth = new JTextField();
+        JTextField endDay = new JTextField();
+
+        startDateInput.add(new JLabel("Please select start date"));
+        startDateInput.add(new JLabel("Year:"));
+        startDateInput.add(startYear);
+        startDateInput.add(new JLabel("Month:"));
+        startDateInput.add(startMonth);
+        startDateInput.add(new JLabel("Day:"));
+        startDateInput.add(startDay);
+        
+        endDateInput.add(new JLabel("Please select end date"));
+        endDateInput.add(new JLabel("Year:"));
+        endDateInput.add(endYear);
+        endDateInput.add(new JLabel("Month:"));
+        endDateInput.add(endMonth);
+        endDateInput.add(new JLabel("Day:"));
+        endDateInput.add(endDay);
+        JButton panelFill = new JButton();
+        endDateInput.add(panelFill);
+        panelFill.setEnabled(false);
+        
+        JButton ConfirmPeriod = new JButton("Search for flights");
+        startDateInput.add(ConfirmPeriod);
+        ConfirmPeriod.addActionListener(new ConfirmPeriodActionListener(startYear, startMonth, startDay, endYear, endMonth, endDay));
+        
+        dateInput.add(startDateInput);
+        dateInput.add(endDateInput);
+        contentPane.removeAll();
+        contentPane.add(dateInput, layout.WEST);
+        
+        frame.pack();
+        frame.setSize(500, 300);
+        frame.setResizable(false);
+    }
+    
     
     /*
      * From the given date, the flights are found and put into JComoboBoxes(dropdown menues). 
@@ -136,18 +186,25 @@ public class GUI {
         ArrayList<Flight> flightsOnDate = new ArrayList<Flight>();
         //Here we make sure we only have the same route once.
         for(int i = 0; i<allFlightsOnDate.size(); i++) {
-            flightsOnDate.add(allFlightsOnDate.get(i));
+            Flight flightToCheck = allFlightsOnDate.get(i);
+            if(i == 0) {
+                flightsOnDate.add(flightToCheck);
+            }
+            if(i>0) {
+                int k = 0;
                 for(int j = 0; j<flightsOnDate.size(); j++) {
-                    // everytime j == i, it will be checking on itself, which would be stupid.
-                    if(j != i) {
-                        if(((flightsOnDate.get(i)).getStartDestination()).equals((allFlightsOnDate.get(j)).getStartDestination()) &&
-                            ((flightsOnDate.get(i)).getEndDestination()).equals((allFlightsOnDate.get(j)).getEndDestination())) {
-                            flightsOnDate.remove(i);
-                        }
+                    Flight existingFlight = flightsOnDate.get(j);
+                    if(existingFlight.getStartDestination().equals(flightToCheck.getStartDestination()) == true &&
+                        existingFlight.getEndDestination().equals(flightToCheck.getEndDestination()) == true) {
+                        k++;
                     }
                 }
+                if(k == 0) {
+                    flightsOnDate.add(flightToCheck);
+                }
+            }
         }
-        flightsOnDate.trimToSize();
+
         //Creates a string array where the strings are startDes-endDes.
         String[] route = new String[flightsOnDate.size()+1];
         route[0] = "Nothing Selected";
@@ -184,6 +241,77 @@ public class GUI {
         frame.setResizable(false);
     }
     
+    
+    private void chooseFlightInPeriod(String startYear, String startMonth, String startDay,
+                              String endYear, String endMonth, String endDay) {
+        if(layout.getLayoutComponent(BorderLayout.EAST) != null) {
+            contentPane.remove(layout.getLayoutComponent(BorderLayout.EAST));
+        }
+        
+        FlightSearch flightsearcher = new FlightSearch();
+        ArrayList<Flight> allFlightsOnDates = new ArrayList<Flight>();
+        try {
+            allFlightsOnDates = (flightsearcher.getDateFlights(database, startYear, startMonth, startDay,
+                                                                        endYear, endMonth, endDay));
+            
+        } catch (SQLException ex) {
+            System.out.println("Error getting flights from server. Exception: " + ex);
+        }
+        ArrayList<Flight> flightsOnDate = new ArrayList<Flight>();
+        //Here we make sure we only have the same route once.
+        for(int i = 0; i<allFlightsOnDates.size(); i++) {
+            Flight flightToCheck = allFlightsOnDates.get(i);
+            if(i == 0) {
+                flightsOnDate.add(flightToCheck);
+            }
+            if(i>0) {
+                int k = 0;
+                for(int j = 0; j<flightsOnDate.size(); j++) {
+                    Flight existingFlight = flightsOnDate.get(j);
+                    if(existingFlight.getStartDestination().equals(flightToCheck.getStartDestination()) == true &&
+                        existingFlight.getEndDestination().equals(flightToCheck.getEndDestination()) == true) {
+                        k++;
+                    }
+                }
+                if(k == 0) {
+                    flightsOnDate.add(flightToCheck);
+                }
+            }
+        }
+
+        //Creates a string array where the strings are startDes-endDes.
+        String[] route = new String[flightsOnDate.size()+1];
+        route[0] = "Nothing Selected";
+        for(int i = 0; i <flightsOnDate.size(); i++) {
+            route[i+1] = flightsOnDate.get(i).getStartDestination()+"-"+flightsOnDate.get(i).getEndDestination();
+        }
+        JPanel flightChoice = new JPanel(new GridLayout(0,1));
+        
+        flightChoice.add(new JLabel("Flights from: " +startDay+"-"+startMonth+"-"+startYear +" to: "
+                                    +endDay+"-"+endMonth+"-"+endYear));
+        routeComboBox = new JComboBox(route);
+              
+        flightChoice.add(new JLabel("Where do you wish to go?"));
+        flightChoice.add(routeComboBox);
+        routeComboBox.addActionListener(new JComboBoxChosenPeriodFlightActionListener(allFlightsOnDates, startYear, startMonth, startDay,
+                                                                                      endYear, endMonth, endDay));
+        
+        String[] noTimestamp = {"Nothing Selected"};
+        timeComboBox = new JComboBox(noTimestamp);
+          
+        flightChoice.add(new JLabel("What date?"));
+        flightChoice.add(timeComboBox);
+ 
+        String noSeats = ("Nothing Selected");
+        remainingSeatsLabel = new JLabel(noSeats);
+        flightChoice.add(remainingSeatsLabel);
+                
+        contentPane.add(flightChoice, layout.EAST);
+        
+        frame.pack();
+        frame.setSize(500, 300);
+        frame.setResizable(false);
+    }
         
     /*
      * You create the traveller responsible for the tickets.
@@ -613,5 +741,165 @@ public class GUI {
                 }
             }
          }
+     }
+
+     private class JComboBoxChosenPeriodFlightActionListener implements ActionListener {
+        
+         ArrayList<Flight> flightsOnDate; 
+         String startYear;
+         String startMonth;
+         String startDay;
+         String endYear;
+         String endMonth;
+         String endDay;
+         
+        public JComboBoxChosenPeriodFlightActionListener(ArrayList<Flight> flightsOnDate, String startYear, String startMonth, String startDay,
+                                                         String endYear, String endMonth, String endDay) {
+        
+            this.flightsOnDate = flightsOnDate;
+            this.startYear = startYear;
+            this.startMonth = startMonth;
+            this.startDay = startDay;
+            this.endYear = endYear;
+            this.endMonth = endMonth;
+            this.endDay = endDay;
+        }
+        public void actionPerformed(ActionEvent e) {
+            if(timeComboBox.getActionListeners().length == 1) {
+                timeComboBox.removeActionListener(timeAC);
+            }
+            ArrayList<String> flightsDes = new ArrayList<String>();
+            String selectedValue = routeComboBox.getSelectedItem().toString();
+            ArrayList<String> timestamps = new ArrayList<String>();
+            if(selectedValue.equals("Nothing Selected") == false) {
+            flightsDes = flightScanner.destinationAnalyser(selectedValue);
+            for(int i = 0; i<flightsOnDate.size();i++) {
+                if(flightsDes.get(0).equals((flightsOnDate.get(i)).getStartDestination()) && 
+                    flightsDes.get(1).equals((flightsOnDate.get(i)).getEndDestination())) {
+                    timestamps.add((flightsOnDate.get(i).getDate())+","+(flightsOnDate.get(i)).timestamp());
+                }
+            }
+            String []timestampsArray = new String[timestamps.size()];
+            for(int j = 0; j<timestamps.size(); j++) {
+                timestampsArray[j] = timestamps.get(j);
+            }
+                    
+            DefaultComboBoxModel model = (DefaultComboBoxModel) timeComboBox.getModel();      
+            model.removeAllElements();
+            
+            for(String value : timestampsArray){
+                model.addElement(value);
+            }
+            timeAC = new JComboBoxTimeAC(flightsOnDate);
+            timeComboBox.addActionListener(timeAC);
+            }
+            else {
+                chooseFlightInPeriod(startYear,startMonth,startDay,endYear,endMonth,endDay);
+            }
+        }
+    }
+     
+     private class JComboBoxTimeAC implements ActionListener {
+         
+         ArrayList<Flight> flightsOnDate;
+         
+         public JComboBoxTimeAC(ArrayList<Flight> flightsOnDate) {
+             this.flightsOnDate = flightsOnDate;
+         }
+         
+         public void actionPerformed(ActionEvent e) {
+             ArrayList<String> flightsDes = new ArrayList<String>();
+            String selectedValue = routeComboBox.getSelectedItem().toString();
+            if(selectedValue.equals("Nothing Selected") == false) {
+            flightsDes = flightScanner.destinationAnalyser(selectedValue);
+                
+                FlightScanner flightScanner = new FlightScanner();
+                ArrayList<String> timeAndDate = flightScanner.nameAnalyser(timeComboBox.getSelectedItem().toString());
+                String selectedTime = timeAndDate.get(1);
+                String selectedDate = timeAndDate.get(0);
+                
+                for(int i = 0; i<flightsOnDate.size();i++) {
+                    String dateOfFlight = (flightsOnDate.get(i).getDate()+"");
+                    if(selectedTime.equals(flightsOnDate.get(i).timestamp()) &&
+                       selectedDate.equals(dateOfFlight) &&
+                       flightsDes.get(0).equals((flightsOnDate.get(i)).getStartDestination()) && 
+                       flightsDes.get(1).equals((flightsOnDate.get(i)).getEndDestination())) {
+                    
+                        int totalSeatsOnFlight = (flightsOnDate.get(i).getNumberOfSeats());
+                        int bookedSeatsOnFlight = (flightsOnDate.get(i).getBookedSeats());
+                        int seatsRemaining = totalSeatsOnFlight - bookedSeatsOnFlight;
+                        remainingSeatsLabel.setText("Remaining seats on flight: "+ seatsRemaining);
+                    }
+                }
+            }
+        }
+    }
+     
+     private class ConfirmPeriodActionListener implements ActionListener {
+         JTextField startYear;
+         JTextField startMonth;
+         JTextField startDay;
+         JTextField endYear;
+         JTextField endMonth;
+         JTextField endDay;
+         
+         public ConfirmPeriodActionListener(JTextField startYear, JTextField startMonth, JTextField startDay,
+                                          JTextField endYear, JTextField endMonth, JTextField endDay) {
+         this.startYear = startYear;
+         this.startMonth = startMonth;
+         this.startDay = startDay;
+         this.endYear = endYear;
+         this.endMonth = endMonth;
+         this.endDay = endDay;
+        }
+        public void actionPerformed(ActionEvent e) {
+            if(isIntNumber(startYear.getText()) == false || (startYear.getText()).length() != 4  ||
+              isIntNumber(startMonth.getText()) == false || (startMonth.getText()).length() > 3 ||
+              isIntNumber(startDay.getText()) == false ||(startDay.getText()).length() > 3 ||
+              isIntNumber(endYear.getText()) == false || (endYear.getText()).length() != 4  ||
+              isIntNumber(endMonth.getText()) == false || (endMonth.getText()).length() > 3 ||
+              isIntNumber(endDay.getText()) == false ||(endDay.getText()).length() > 3) {
+              
+                JOptionPane errorDialog = new JOptionPane();
+                errorDialog.showMessageDialog(null, "Error! input was not a date!");
+                choosePeriod();
+           }
+           else { 
+               //turns the input into integers after we've checked if they are indeed integers.
+               String startMonthTemp = new String(startMonth.getText());
+               String startDayTemp = new String(startDay.getText());
+               int chosenStartYear = Integer.parseInt(startYear.getText());
+               int chosenStartMonth = Integer.parseInt(startMonth.getText());
+               int chosenStartDay = Integer.parseInt(startDay.getText());
+               
+               String endMonthTemp = new String(endMonth.getText());
+               String endDayTemp = new String(endDay.getText());
+               int chosenEndYear = Integer.parseInt(endYear.getText());
+               int chosenEndMonth = Integer.parseInt(endMonth.getText());
+               int chosenEndDay = Integer.parseInt(endDay.getText());
+               
+               //A check for whenever the month and day inputs are written in, for instance, 02 or 2. 
+               //If the first is the case, it's changed to 2.
+               if((startMonth.getText()).contains("0") == true) {
+                   startMonthTemp.substring((startMonth.getText()).length()-1);
+                   chosenStartMonth = Integer.parseInt(startMonthTemp);
+               }
+               if((startDay.getText()).contains("0") == true) {
+                   startDayTemp.substring((startDay.getText()).length()-1);
+                   chosenStartDay = Integer.parseInt(startDayTemp);
+               }
+               
+               if((endMonth.getText()).contains("0") == true) {
+                   endMonthTemp.substring((endMonth.getText()).length()-1);
+                   chosenEndMonth = Integer.parseInt(endMonthTemp);
+               }
+               if((endDay.getText()).contains("0") == true) {
+                   endDayTemp.substring((endDay.getText()).length()-1);
+                   chosenEndDay = Integer.parseInt(endDayTemp);
+               }
+               chooseFlightInPeriod(startYear.getText(), startMonth.getText(), startDay.getText(), 
+                            endYear.getText(), endMonth.getText(), endDay.getText()); 
+          }
+        }
      }
 }
