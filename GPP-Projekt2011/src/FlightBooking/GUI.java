@@ -70,13 +70,13 @@ public class GUI {
         menu = new JMenu("Reservations");
         menubar.add(menu);
         
-        item = new JMenuItem("Make reservations or see flights");
+        item = new JMenuItem("Make reservations");
             item.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) { chooseDate(); }
             });
         menu.add(item);
         
-        item = new JMenuItem("Test");
+        item = new JMenuItem("See flights");
             item.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) { choosePeriod(); }
             });
@@ -147,11 +147,11 @@ public class GUI {
         endDateInput.add(new JLabel("Day:"));
         endDateInput.add(endDay);
         JButton panelFill = new JButton();
-        endDateInput.add(panelFill);
+        startDateInput.add(panelFill);
         panelFill.setEnabled(false);
         
         JButton ConfirmPeriod = new JButton("Search for flights");
-        startDateInput.add(ConfirmPeriod);
+        endDateInput.add(ConfirmPeriod);
         ConfirmPeriod.addActionListener(new ConfirmPeriodActionListener(startYear, startMonth, startDay, endYear, endMonth, endDay));
         
         dateInput.add(startDateInput);
