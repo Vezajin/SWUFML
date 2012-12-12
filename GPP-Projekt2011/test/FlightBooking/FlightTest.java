@@ -32,7 +32,7 @@ public class FlightTest {
         db = new Database();
         d = (new NewDate(2013, 10, 1)).getDate();
         f1 = new Flight("Copenhagen", "London", d, 100, "14:00", 0);
-        f2 = new Flight(db, 632);
+        f2 = new Flight(db, 700);
     }
     
     @AfterClass
@@ -93,7 +93,7 @@ public class FlightTest {
     @Test
     public void testGetKey() {
         System.out.println("getKey");
-        assertEquals(f2.getKey(), 632);
+        assertEquals(f2.getKey(), 700);
     }
 
     /**
@@ -111,7 +111,7 @@ public class FlightTest {
     @Test
     public void testGetEndDestination() {
         System.out.println("getEndDestination");
-        assertEquals(f2.getEndDestination(), "London");
+        assertEquals(f2.getEndDestination(), "Amsterdam");
     }
 
     /**
@@ -120,7 +120,7 @@ public class FlightTest {
     @Test
     public void testGetDate() {
         System.out.println("getDate");
-        assertEquals(f2.getDate(), (new NewDate(2013, 01, 03)).getDate());
+        assertEquals(f2.getDate(), (new NewDate(2013, 01, 25)).getDate());
     }
     
     /**
@@ -129,7 +129,7 @@ public class FlightTest {
     @Test
     public void testGetNumberOfSeats() {
         System.out.println("getNumberOfSeats");
-        assertEquals(f2.getNumberOfSeats(), 60);
+        assertEquals(f2.getNumberOfSeats(), 40);
     }
 
     /**
@@ -147,6 +147,6 @@ public class FlightTest {
     @Test
     public void testTimestamp() {
         System.out.println("timestamp");
-        assertEquals(f2.timestamp(), "12:00");
+        assertEquals(f2.timestamp(), "14:00");
     }
 }
