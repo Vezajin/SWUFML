@@ -10,13 +10,11 @@ import java.sql.*;
  * @author Nikolaj
  */
 public class TestClass {
-    
-  
-    
+
     public TestClass() {
-    
+
     }
-   
+
     public void testMakeOrder1() throws SQLException {
         try {
             Database db = new Database();
@@ -37,5 +35,10 @@ public class TestClass {
         Database db = new Database();
         fs.getSpecDateFlights(db, "2013", "01", "09");
     }
+    
+    public void testArrayStuff2() throws SQLException {
+        FlightSearch fs = new FlightSearch();
+        Database db = new Database();
+        fs.getDateFlights(db, "2013", "01", "04", "2013", "01", "14");
+    }
 }
-
