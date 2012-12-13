@@ -91,7 +91,7 @@ public class GUI {
     
 
     /*
-     * This method is used for determining which date the customer wishes to depart.
+     * This method takes the input that is used for searching for flights.
      */
     private void chooseDate() {
         JPanel dateInput = new JPanel(new GridLayout(0,1));
@@ -109,6 +109,8 @@ public class GUI {
         dateInput.add(startDay);
         JButton ConfirmDate = new JButton("Search for flights");
         dateInput.add(ConfirmDate);
+        // ConfirmDateActionListener checks whenever the input is a valid date input or not. If so, it sends the input
+        // to onwards to chooseFlight.
         ConfirmDate.addActionListener(new ConfirmDateActionListener(startYear, startMonth, startDay));
         
         contentPane.removeAll();
@@ -119,6 +121,9 @@ public class GUI {
         frame.setResizable(false);
     }
     
+    /*
+     * Is used when searching for flights in a period. Takes a total of 6 inputs that is made into two strings.
+     */
     private void choosePeriod() {
         JPanel dateInput = new JPanel(new GridLayout(1,1));
         JPanel startDateInput = new JPanel(new GridLayout(0,1));
@@ -152,6 +157,8 @@ public class GUI {
         
         JButton ConfirmPeriod = new JButton("Search for flights");
         endDateInput.add(ConfirmPeriod);
+        // ConfirmDatePeriodListener checks whenever the inputs are valid dates input or not. If so, it sends the inputs
+        // to onwards to chooseFlightInPeriod.
         ConfirmPeriod.addActionListener(new ConfirmPeriodActionListener(startYear, startMonth, startDay, endYear, endMonth, endDay));
         
         dateInput.add(startDateInput);
@@ -168,7 +175,7 @@ public class GUI {
     /*
      * From the given date, the flights are found and put into JComoboBoxes(dropdown menues). 
      * The 2nd JComboBox's content changes when a value is selected in the first JCombobox. This is
-     * handled by our inner class JComboBoxActionListener.
+     * handled by our inner class JComboBoxFlightActionListener.
      */
     private void chooseFlight(String year, String month, String day) {
         if(layout.getLayoutComponent(BorderLayout.EAST) != null) {
@@ -232,6 +239,8 @@ public class GUI {
         
         JButton confirmFlight = new JButton("Confirm chosen flight");
         flightChoice.add(confirmFlight);
+        //The ConfirmFlightActionListener takes the chosen flight, and finds the correct Database entry that matches the chosen
+        // flight, and then starts the booking of seats process on that flight.
         confirmFlight.addActionListener(new ConfirmFlightActionListener(year,month,day,flightsOnDate));
                 
         contentPane.add(flightChoice, layout.EAST);
@@ -241,7 +250,11 @@ public class GUI {
         frame.setResizable(false);
     }
     
-    
+    /*
+     * From the given dates, the flights are found and put into JComoboBoxes(dropdown menues). 
+     * The 2nd JComboBox's time changes when a value is selected in the first JCombobox. This is
+     * handled by our inner class JComboBoxPeriodFlightActionListener.
+     */
     private void chooseFlightInPeriod(String startYear, String startMonth, String startDay,
                               String endYear, String endMonth, String endDay) {
         if(layout.getLayoutComponent(BorderLayout.EAST) != null) {
@@ -293,6 +306,9 @@ public class GUI {
               
         flightChoice.add(new JLabel("Where do you wish to go?"));
         flightChoice.add(routeComboBox);
+        //We send all flights in the period to our ActionListener, because even though
+        //we only want to show the route once, we still wish all the timestamps for that route.
+        //The ActionListener updates the timeComboBox with the correct timestamps.
         routeComboBox.addActionListener(new JComboBoxChosenPeriodFlightActionListener(allFlightsOnDates, startYear, startMonth, startDay,
                                                                                       endYear, endMonth, endDay));
         
@@ -417,15 +433,19 @@ public class GUI {
             }
  
         }
+        //Adds the potentially two rows or name textfields to the window, and adds an empty panel for spacing.
         JPanel cusInput = new JPanel(new GridLayout(0,3));
         cusInput.add(cusInputWest);
         cusInput.add(new JPanel());
         cusInput.add(cusInputEast);
         
+        //Makes the window with the textfields and OK and CANCEL buttons.
         JOptionPane inputDialog = new JOptionPane();
         int cusResult = inputDialog.showConfirmDialog(frame, cusInput, "Additional Travellers Names", inputDialog.OK_CANCEL_OPTION);
         if(cusResult == inputDialog.YES_OPTION) {
             
+            //If any of the textfields havent been filled out properly, you will receive an error
+            //bceAUSE anyError will be over 0.
             int anyErrors = 0;
             for(int k = 0; k<additionalCustomerNames.length; k++) {
                 if(additionalCustomerNames[k].getText().equals("Full name") == true || additionalCustomerNames[k].getText().equals(null) == true || additionalCustomerNames[k].getText().equals("") == true) {
@@ -436,7 +456,7 @@ public class GUI {
                 JOptionPane errorDialog = new JOptionPane();
                 errorDialog.showMessageDialog(null, "Error! all the inputs were not names!");
                 createAdditionalCustomers(seatsRemaining, numberOfSeats, customer, travellerNames, nameOfSeats, flightID, flight);
-                anyErrors = 0;    
+                anyErrors = 0;   
             }
             
             //For each traveller, the traveller's name is added to the string from createCustomer.
@@ -447,7 +467,10 @@ public class GUI {
         }
     }
    
-    
+    /*
+     * Creates the order in the database and updates the different rows in the tables in the database.
+     * This method also prints out the "ticket" in the main window.
+     */
     private void makeOrder(String travellers, Customer customer, String nameOfSeats, int numberOfSeats, int flightID, String flight) {
                 try {
                     customer.insert(database);
@@ -502,7 +525,11 @@ public class GUI {
     
     
     /**
-     *
+     * You input customerID and phone number and then the order is chosen in the DB.
+     * phonenumber is not actually used, except it is checked whenever or not it is indeed a number.
+     * If you choose to delete your order, this is also done here, and the databse is updated.
+     * Otherwise the chooseSeats is called and methodChecker is set to 1 instead of 0, so the method behaves
+     * differently, and allows the option to do whatever the task you chose after inputting number and ID.
      */
     private void editReservation() {
         Object[] options = {"Edit Reservation", "Delete Reservation"};
@@ -634,7 +661,7 @@ public class GUI {
             for(int j = 0; j<timestamps.size(); j++) {
                 timestampsArray[j] = timestamps.get(j);
             }
-                    
+            //Empties timeComboBox and adds timestamps to it instead.        
             DefaultComboBoxModel model = (DefaultComboBoxModel) timeComboBox.getModel();      
             model.removeAllElements();
             
@@ -643,6 +670,7 @@ public class GUI {
             }
             String selectedTime = timeComboBox.getSelectedItem().toString();
             
+            //Finds the flight that matches the route and timestamp.
             for(int i = 0; i<flightsOnDate.size();i++) {
                 if(selectedTime.equals(flightsOnDate.get(i).timestamp()) &&
                    flightsDes.get(0).equals((flightsOnDate.get(i)).getStartDestination()) && 
@@ -651,16 +679,20 @@ public class GUI {
                     int totalSeatsOnFlight = (flightsOnDate.get(i).getNumberOfSeats());
                     int bookedSeatsOnFlight = (flightsOnDate.get(i).getBookedSeats());
                     int seatsRemaining = totalSeatsOnFlight - bookedSeatsOnFlight;
+                    //Updates the label to show how many seats there remain on the flight.
                     remainingSeatsLabel.setText("Remaining seats on flight: "+ seatsRemaining);
                 }
             }
             }
+            //To avoid nullpointerexception, the choosFlight method is called again if you choose "nothing selected"
+            //again after having chosen a flight already.
             else {
                 chooseFlight(year,month,day);
             }
         }
     }
      
+     //Checks if the date is actually a date, and calls chooseFlight.
      private class ConfirmDateActionListener implements ActionListener {
          JTextField startYear;
          JTextField startMonth;
@@ -702,6 +734,9 @@ public class GUI {
         }
      }
      
+     /*
+      * Checks the chosen flight and sends it to FlightSeat so seats on the plane can be booked.
+      */
      private class ConfirmFlightActionListener implements ActionListener {
          
          String year;
@@ -717,7 +752,7 @@ public class GUI {
          }
          
          public void actionPerformed(ActionEvent e) {
-             if(routeComboBox.getSelectedItem() == "Nothing Selected") {
+             if(routeComboBox.getSelectedItem().equals("Nothing Selected") == true) {
               
                 JOptionPane errorDialog = new JOptionPane();
                 errorDialog.showMessageDialog(null, "Error! Please choose a flight!");
@@ -742,7 +777,12 @@ public class GUI {
             }
          }
      }
-
+     
+     /*
+      * Updates the route comboBox with appropiate routes. If you have already searched once before, so there's
+      * an ActionListener on the timeComboBox, this is removed to avoid errors. In the end, an actionListener is added
+      * to the timeComboBox.
+      */
      private class JComboBoxChosenPeriodFlightActionListener implements ActionListener {
         
          ArrayList<Flight> flightsOnDate; 
@@ -798,7 +838,9 @@ public class GUI {
             }
         }
     }
-     
+     /*
+      * Updates the JLabel with remaining seats on flight according to which specific flight that is chosen.
+      */
      private class JComboBoxTimeAC implements ActionListener {
          
          ArrayList<Flight> flightsOnDate;
@@ -835,6 +877,10 @@ public class GUI {
         }
     }
      
+     /* 
+      * Does pretty much the same as ConfirmDate, except there's one more date here and calls chooseFlightInPeriod
+      * instead.
+      */
      private class ConfirmPeriodActionListener implements ActionListener {
          JTextField startYear;
          JTextField startMonth;

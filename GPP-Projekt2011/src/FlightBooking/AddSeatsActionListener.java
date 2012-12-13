@@ -10,7 +10,8 @@ import java.sql.*;
 import javax.swing.*;
 
 /**
- *
+ * This is like the delete- and moveSeatsActionListeners, but because this is
+ * a rather big chunk of code, it was moved into a seperate class.
  * @author Mark
  */
 public class AddSeatsActionListener implements ActionListener {

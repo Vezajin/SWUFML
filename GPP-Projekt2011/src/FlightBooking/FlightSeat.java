@@ -12,7 +12,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.*;
 /**
- *
+ *handles everything that has to do with seats in the program.
  * @author Mark
  */
 public class FlightSeat {
@@ -28,6 +28,12 @@ public class FlightSeat {
         this.database = database;
         this.flightScanner = flightScanner;
     }
+    /*
+     * Creates seats for the chosen flight and makes already booked seats red and disabled.
+     * If methodChecker is 1, you are changing an existing order and the seats' status' are changed 
+     * to match whatever you're doing. For instance if you are deleting seats, those attached to your order
+     * will be blue and enabled, even though they are already booked.
+     */
     public void chooseSeats(int flightID, int numberOfSeats, String flight, int methodChecker, int customerID) {
         seatsDialog = new JDialog(gui.returnFrame());
         
@@ -44,7 +50,8 @@ public class FlightSeat {
         int j = 0;
         String seatName;
         JButton[] button = new JButton[numberOfSeats]; 
-         
+        
+        //Adds all the seats to four columns.
         while(i<=seatsInColumn) {
             seatName = i+"a";
             seat = new JButton(seatName);
@@ -81,7 +88,7 @@ public class FlightSeat {
             i++;
         }
         
-        
+        //Sets booked seats to red and disabled.
         ArrayList<String>bookedSeats = new ArrayList<String>(); 
         try {
             ResultSet rsSeats = database.execute("SELECT seatstring FROM Orders WHERE flightid = " + flightID);
@@ -159,7 +166,6 @@ public class FlightSeat {
                                                                                             seats, flight, finalMethodChecker, finalCustomerID, seatsDialog);
                                 save.addActionListener(ASAC);
                                 makeDialog(seatsDialog);
-                                //return seatsDialog;
                             }
                             //If you wanna delete seats from the order.
                             if(optionResult == JOptionPane.NO_OPTION) {
@@ -176,7 +182,6 @@ public class FlightSeat {
                                                                                                 finalMethodChecker, finalCustomerID, customersBookedSeats);
                                 save.addActionListener(DSAC);
                                 makeDialog(seatsDialog);
-                                //return seatsDialog;
                             }
                             //If you want to move your seats.
                             if(optionResult == JOptionPane.CANCEL_OPTION) {
@@ -188,7 +193,6 @@ public class FlightSeat {
                                                                         chosenFlight, seats, flight, finalMethodChecker, finalCustomerID);
                                 save.addActionListener(MSAC);
                                 makeDialog(seatsDialog);
-                                //return seatsDialog;
                             }
                             else {
 
@@ -198,17 +202,16 @@ public class FlightSeat {
 //------------------------------------------------------------------------------            
             else {
                 makeDialog(seatsDialog);
-                //return seatsDialog;
             }
         }
         catch (SQLException ex) {
             System.out.println("finding order exception : " + ex);
         }
-        //This is just to make the compiler happy. Also if you press the close button, when methodChecker == 1, this will happen.
-        //return null;
     }
     
-    
+    /*
+     * Makes the seat window and attaches it to the Frame from the gui.
+     */
     private void makeDialog(JDialog seatsDialog) {
        
         seatsDialog.pack();
@@ -217,7 +220,10 @@ public class FlightSeat {
         seatsDialog.setVisible(true);
     }
     
-    
+    /*
+     * The seats you have chosen, are checked here, and if you have done it correctly, you're send 
+     * onwards to creating customer.
+     */
     private void saveChosenSeats(JButton[] button, int flightID, int numberOfSeats, String flight, int methodChecker, int customerID, JDialog dialog) {
         int seats = 0;
         String nameOfSeats = new String();
@@ -245,6 +251,7 @@ public class FlightSeat {
                                                             "Confirm your choice", succesDialog.OK_CANCEL_OPTION);
             if(succesResult == succesDialog.YES_OPTION) {
                 gui.createCustomer(seats, nameOfSeats, flightID, flight);
+                //Closes the seatDialog, otherwise it wouldnt be closed by the program.
                 seatsDialog.dispose();
             }
             //If you're not happy with your choice or try to close the window, you're sent back to choosing seats.
@@ -277,7 +284,8 @@ public class FlightSeat {
     }
     
     /*
-     * When creating a new order, this save method is used.
+     * When creating a new order, this save method is used. Takes the chosen
+     * seats and sends them to saveChosenSeats.
      */
     private class SaveActionListener implements ActionListener {
         
@@ -303,7 +311,10 @@ public class FlightSeat {
         }
     }
     
-     
+    /*
+     * This methods overrides the save buttons default ActionListener if you're deleting seats on
+     * an existing order.
+     */
     private class DeleteSeatsActionListener implements ActionListener {
         private JButton[] finalChosenButtons;
         private int chosenFlight;
@@ -369,7 +380,10 @@ public class FlightSeat {
          }
     }
     
-    
+    /*
+     * Ovverides the save buttons original ActionListener if you're moving
+     * seats on an existing order.
+     */
     private class MoveSeatsActionListener implements ActionListener {
         private JButton[] buttonFinished;
         private JButton[] finalChosenButtons;
