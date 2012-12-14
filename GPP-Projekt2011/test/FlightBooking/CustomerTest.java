@@ -52,7 +52,7 @@ public class CustomerTest {
     @Test
     public void testInsert() throws SQLException {
         c1.insert(db);
-        ResultSet rs = db.execute("SELECT * FROM Customer");
+        ResultSet rs = db.execute("SELECT * FROM Customer ORDER BY id ASC");
         rs.last();
         assertEquals(rs.getString("firstname"), "Tom");
         assertEquals(rs.getString("lastname"), "Johansen");

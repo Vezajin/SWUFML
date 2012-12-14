@@ -56,7 +56,7 @@ public class FlightTest {
     @Test
     public void testInsert() throws Exception {
         f1.insert(db);
-        ResultSet rs = db.execute("SELECT * FROM Flights ORDER BY id AS");
+        ResultSet rs = db.execute("SELECT * FROM Flights ORDER BY id ASC");
         rs.last();
         assertEquals(rs.getString("startdestination"), "Copenhagen");
         assertEquals(rs.getString("enddestination"), "London");
