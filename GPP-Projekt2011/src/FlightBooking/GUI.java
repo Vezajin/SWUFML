@@ -70,7 +70,13 @@ public class GUI {
         menu = new JMenu("Reservations");
         menubar.add(menu);
         
-        item = new JMenuItem("search for flights on date");
+        item = new JMenuItem("Home");
+            item.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) { pictureContent(); }
+            });
+        menu.add(item);
+        
+        item = new JMenuItem("Search for flights on date");
             item.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) { chooseDate(); }
             });
@@ -602,13 +608,13 @@ public class GUI {
      */
     private void pictureContent() {
         contentPane.removeAll();
-        ImageIcon icon = new ImageIcon(getClass().getResource("fly.jpg"));
+        ImageIcon icon = new ImageIcon(getClass().getResource("swufmllogo.jpg"));
         JLabel pictureLabel = new JLabel(icon);
         contentPane.add(pictureLabel, BorderLayout.CENTER);
         
         frame.pack();
         frame.setLocationRelativeTo(null);
-        frame.setSize(500, 300);
+        frame.setSize(570, 400);
         frame.setResizable(false);
         frame.setVisible(true);
     }
