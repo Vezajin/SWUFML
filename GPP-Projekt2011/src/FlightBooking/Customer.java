@@ -41,12 +41,17 @@ public class Customer implements DatabaseTable {
         email = rs.getString("email");
     }
     
+    /** Constructor for creating a customer object, using data from a specified
+     *  row in the database
+     */
     public Customer(Database db, int k) throws SQLException {
         ResultSet rs = db.execute("SELECT * FROM Customer WHERE id = " + k);
         rs.next();
         init(rs);
     }
     
+    /** The insert method inserts the data from the fields into the database.    
+     */
     @Override
     public void insert(Database db) throws SQLException {
         db.execute ("INSERT INTO Customer (firstname, lastname, country, city, address, phonenumber, email) VALUES ('" +
@@ -63,34 +68,42 @@ public class Customer implements DatabaseTable {
         db.execute("DELETE FROM Customer WHERE id = " + k);
     }
     
+    // Returns the key.
     public int getKey() {
         return key;
     }
     
+    // Returns firstname.
     public String getFirstname() {
         return firstname;
     }
     
+    // Returns lastname.
     public String getLastname() {
         return lastname;
     }
     
+    // Returns country.
     public String getCountry() {
         return country;
     }
     
+    // Returns city.
     public String getCity() {
         return city;
     }
     
+    // Returns address.
     public String getAddress() {
         return address; 
     }
     
+    // Returns phonenumber.
     public String getPhonenumber() {
         return phonenumber;
     }
     
+    // Returns email.
     public String getEmail() {
         return email;
     }

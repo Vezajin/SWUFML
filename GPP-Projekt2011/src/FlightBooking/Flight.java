@@ -13,6 +13,7 @@ public class Flight implements DatabaseTable {
     private String startdes, enddes, timestamp;
     private Date date;
     
+    // Constructor for creating a flight object.
     public Flight(String s, String e, Date d, int ns, String t, int bs) {
         key = 0;
         bookedseats = 0;
@@ -24,6 +25,7 @@ public class Flight implements DatabaseTable {
         bookedseats = bs;
     }
     
+    // Constructor for creating a flight with a specific key.
     public Flight(int k, String s, String e, Date d, int ns, String t, int bs) {
         key = k;
         bookedseats = 0;
@@ -47,6 +49,7 @@ public class Flight implements DatabaseTable {
         timestamp = rs.getString("timestamp");
     }
     
+    // Constructor for creating a flight object from the database.
     public Flight(Database db, int k) throws SQLException {
         ResultSet rs = db.execute("SELECT * FROM Flights WHERE id = " + k);
         rs.next();
@@ -87,19 +90,23 @@ public class Flight implements DatabaseTable {
         return date;
     }
     
+    // Returns number of seats.
     public int getNumberOfSeats()
     {
         return numberofseats;
     }
     
+    // Returns number of bookedseats.
     public int getBookedSeats() {
         return bookedseats;
     }
     
+    // Returns timestamp.
     public String timestamp() {
         return timestamp;
     }
     
+    // Method used for inserting an entier flight route.
     public static void insertManyFlights(String s, String e, int y, int m, int sd, int ed, String t, int ns) throws SQLException {
         Database db = new Database();
         for(int i = sd; i < ed; i++) {
@@ -110,4 +117,3 @@ public class Flight implements DatabaseTable {
         db.close();
     }    
 }
-

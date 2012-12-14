@@ -1,13 +1,10 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package FlightBooking;
 
 import java.sql.*;
 
 /**
- *
+ * This interface contains abstract methods that needs to be implemented in
+ * all the database classes.
  * @author Nikolaj
  */
 public interface DatabaseTable {

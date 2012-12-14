@@ -27,6 +27,7 @@ public class FlightTest {
     public FlightTest() {
     }
     
+    // Variables that are initialized when the testclass is run.
     @BeforeClass
     public static void setUpClass() throws SQLException {
         db = new Database();
@@ -35,6 +36,7 @@ public class FlightTest {
         f2 = new Flight(db, 700);
     }
     
+    // Actions performed after the testclass is run.
     @AfterClass
     public static void tearDownClass() throws SQLException {
         db.close();
@@ -54,7 +56,7 @@ public class FlightTest {
     @Test
     public void testInsert() throws Exception {
         f1.insert(db);
-        ResultSet rs = db.execute("SELECT * FROM Flights");
+        ResultSet rs = db.execute("SELECT * FROM Flights ORDER BY id AS");
         rs.last();
         assertEquals(rs.getString("startdestination"), "Copenhagen");
         assertEquals(rs.getString("enddestination"), "London");

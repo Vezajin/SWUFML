@@ -6,7 +6,7 @@ import java.util.logging.Logger;
 import java.sql.*;
 
 /**
- * TestClass contains tests for various methods that was not intuitive to test
+ * TestClass contains tests for various methods that were not intuitive to test
  * with JUnit.
  * @author Nikolaj
  */
@@ -15,28 +15,20 @@ public class TestClass {
     public TestClass() {
 
     }
-
-    public void testMakeOrder1() throws SQLException {
-        try {
-            Database db = new Database();
-            Order o = new Order(4, 10, "1a, 2a", "mand1, mand2");
-            o.insert(db);
-        } catch (SQLException ex) {
-            Logger.getLogger(TestClass.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    }
-    public void testMakeCustomer() throws SQLException {
-        Database db = new Database();
-        Customer c = new Customer("Michael", "Johansson", "Sweden", "Stockholm", "Testvejen", "59473625", "en@mail.se");
-        c.insert(db);
-    }
     
+    
+    /** Testing that the method getSpecDateFlights finds the correct flights in the database.
+     *  Verified manually by comparing system.out.println with database info.
+     */
     public void testFlightSearch1() throws SQLException {
         FlightSearch fs = new FlightSearch();
         Database db = new Database();
         fs.getSpecDateFlights(db, "2013", "01", "09");
     }
     
+    /** Testing that the method getSpecDateFlights finds the correct flights in the database.
+     *  Verified manually by comparing system.out.println with database info.
+     */
     public void testFlightSearch2() throws SQLException {
         FlightSearch fs = new FlightSearch();
         Database db = new Database();

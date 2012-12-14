@@ -6,12 +6,10 @@ import java.sql.*;
  * @author Lollike
  */
 
-
     public class Order implements DatabaseTable {
         private int key, customer, flight; // Fields for corresponding schemas in the database for primary key, customerid and flightid.
         private String seat, name;
-
-    
+ 
 /**
  * The constructor takes the required information for an order, which is
  * customer ID, flight ID, a string of ordered seats and a string of names
@@ -47,10 +45,10 @@ import java.sql.*;
         init(rs);
     }
 
-/**
- * Inserts the data of the fields into the corresponding columns in the order
- * table of the database.
- */    
+    /**
+     * Inserts the data of the fields into the corresponding columns in the order
+     * table of the database.
+     */    
         @Override
     public void insert(Database db) throws SQLException {
         db.execute("INSERT INTO Orders (customerid, flightid, seatstring, namestring) VALUES ('" 
