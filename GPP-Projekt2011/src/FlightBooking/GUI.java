@@ -372,10 +372,10 @@ public class GUI {
         //Checks if the input is valid. If it isn't, error dialog appears and makes you try again.
         if(result == inputDialog.YES_OPTION) {
             
-            if(firstName.getText() == "" || lastName.getText() == "" || 
-               country.getText() == "" || city.getText() == "" || 
-               address.getText() == "" || email.getText() == "" ||
-               phoneNumber.getText() == "" || isIntNumber(phoneNumber.getText()) == false) {
+            if(firstName.getText().equals("") == true || lastName.getText().equals("") == true || 
+               country.getText().equals("") == true || city.getText().equals("") == true || 
+               address.getText().equals("") == true || email.getText().equals("") == true ||
+               phoneNumber.getText().equals("") == true || isIntNumber(phoneNumber.getText()) == false) {
                 
                 JOptionPane errorDialog = new JOptionPane();
                     errorDialog.showMessageDialog(frame, "Error! input was incorrect, try again.");
@@ -728,6 +728,7 @@ public class GUI {
                
                //A check for whenever the month and day inputs are written in, for instance, 02 or 2. 
                //If the first is the case, it's changed to 2.
+               //Is not used at this point.
                if((startMonth.getText()).contains("0") == true) {
                    startMonthTemp.substring((startMonth.getText()).length()-1);
                    month = Integer.parseInt(startMonthTemp);
@@ -968,6 +969,7 @@ public class GUI {
                
                //A check for whenever the month and day inputs are written in, for instance, 02 or 2. 
                //If the first is the case, it's changed to 2.
+               // Is not used at this point.
                if((startMonth.getText()).contains("0") == true) {
                    startMonthTemp.substring((startMonth.getText()).length()-1);
                    chosenStartMonth = Integer.parseInt(startMonthTemp);
