@@ -70,13 +70,13 @@ public class GUI {
         menu = new JMenu("Reservations");
         menubar.add(menu);
         
-        item = new JMenuItem("Make reservations");
+        item = new JMenuItem("search for flights on date");
             item.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) { chooseDate(); }
             });
         menu.add(item);
         
-        item = new JMenuItem("See flights");
+        item = new JMenuItem("Search for flights in a period");
             item.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) { choosePeriod(); }
             });
@@ -321,6 +321,13 @@ public class GUI {
         String noSeats = ("Nothing Selected");
         remainingSeatsLabel = new JLabel(noSeats);
         flightChoice.add(remainingSeatsLabel);
+        
+        JButton confirmFlight = new JButton("Confirm chosen flight");
+        flightChoice.add(confirmFlight);
+        //The ConfirmFlightActionListener takes the chosen flight, and finds the correct Database entry that matches the chosen
+        // flight, and then starts the booking of seats process on that flight.
+        
+        confirmFlight.addActionListener(new ConfirmFlightFromPeriod(allFlightsOnDates));
                 
         contentPane.add(flightChoice, layout.EAST);
         
@@ -850,7 +857,7 @@ public class GUI {
          }
          
          public void actionPerformed(ActionEvent e) {
-             ArrayList<String> flightsDes = new ArrayList<String>();
+            ArrayList<String> flightsDes = new ArrayList<String>();
             String selectedValue = routeComboBox.getSelectedItem().toString();
             if(selectedValue.equals("Nothing Selected") == false) {
             flightsDes = flightScanner.destinationAnalyser(selectedValue);
@@ -876,6 +883,41 @@ public class GUI {
             }
         }
     }
+     
+     /*
+      * This method is used for making an order from the finding flights in period.
+      */
+     private class ConfirmFlightFromPeriod implements ActionListener {
+         private ArrayList<Flight> flightsOnDate;
+         
+         public ConfirmFlightFromPeriod(ArrayList<Flight> flightsOnDate) {
+             this.flightsOnDate = flightsOnDate;
+         }
+         public void actionPerformed(ActionEvent e) {
+             ArrayList<String> flightsDes = new ArrayList<String>();
+            String selectedValue = routeComboBox.getSelectedItem().toString();
+            if(selectedValue.equals("Nothing Selected") == false) {
+            flightsDes = flightScanner.destinationAnalyser(selectedValue);
+                
+                FlightScanner flightScanner = new FlightScanner();
+                ArrayList<String> timeAndDate = flightScanner.nameAnalyser(timeComboBox.getSelectedItem().toString());
+                String selectedTime = timeAndDate.get(1);
+                String selectedDate = timeAndDate.get(0);
+                
+                for(int i = 0; i<flightsOnDate.size();i++) {
+                    String dateOfFlight = (flightsOnDate.get(i).getDate()+"");
+                    if(selectedTime.equals(flightsOnDate.get(i).timestamp()) &&
+                       selectedDate.equals(dateOfFlight) &&
+                       flightsDes.get(0).equals((flightsOnDate.get(i)).getStartDestination()) && 
+                       flightsDes.get(1).equals((flightsOnDate.get(i)).getEndDestination())) {
+                        String flight = selectedValue + ", " + flightsOnDate.get(i).getDate() + ", " + selectedTime;
+                        FlightSeat flightseat = new FlightSeat(gui, database, flightScanner);
+                        flightseat.chooseSeats(flightsOnDate.get(i).getKey(), flightsOnDate.get(i).getNumberOfSeats(),flight, 0, 0);
+                    }
+                }
+            }
+         }
+     }
      
      /* 
       * Does pretty much the same as ConfirmDate, except there's one more date here and calls chooseFlightInPeriod
